@@ -5,6 +5,8 @@ import jpa.board.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -13,5 +15,9 @@ public class MemberService {
     public Long join(Member member) {
         Member savedMember = memberRepository.save(member);
         return savedMember.getNo();
+    }
+
+    public Member findByMember(Long memberNo) {
+        return memberRepository.findById(memberNo).get();
     }
 }
