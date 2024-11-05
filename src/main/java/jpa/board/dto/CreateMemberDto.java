@@ -10,6 +10,4 @@ public class CreateMemberDto {
     private String password;
 
     private String nickname;
-
-    private RoleType roleType;
 }
