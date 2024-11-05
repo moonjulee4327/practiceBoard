@@ -1,28 +1,37 @@
 package jpa.board.service;
 
-import jpa.board.BoardApplication;
 import jpa.board.domain.Member;
 import jpa.board.domain.RoleType;
 import jpa.board.repository.MemberRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class MemberServiceTest {
-    @Autowired
+    @Mock
+    private MemberRepository memberRepository;
+
+    @InjectMocks
     private MemberService memberService;
 
     @Test
     @DisplayName("회원가입")
     void join() {
         Member member = createMember();
+
+        when(memberRepository.save(member)).thenReturn(member);
+        when(memberRepository.findById(member.getNo())).thenReturn(Optional.of(member));
 
         Long saveNo = memberService.join(member);
         Member findMember = memberService.findMember(saveNo);
