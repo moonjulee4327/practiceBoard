@@ -1,6 +1,5 @@
 package jpa.board.dto;
 
-import jpa.board.domain.RoleType;
 import lombok.Data;
 
 @Data
