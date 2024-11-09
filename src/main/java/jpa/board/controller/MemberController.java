@@ -2,15 +2,13 @@ package jpa.board.controller;
 
 import jpa.board.domain.Member;
 import jpa.board.domain.RoleType;
-import jpa.board.dto.CreateMemberDto;
-import jpa.board.dto.CreateMemberResponseDto;
+import jpa.board.dto.*;
 import jpa.board.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,5 +26,18 @@ public class MemberController {
 
         Long saveMemberNo = memberService.join(member);
         return ResponseEntity.ok(new CreateMemberResponseDto(saveMemberNo));
+    }
+
+    @GetMapping("/members")
+    public ResponseEntity<Object> listMember() {
+        List<MemberDto> list = memberService.findAll();
+        return ResponseEntity.ok(list);
+    }
+
+    @PatchMapping("/members/{memberId}")
+    public ResponseEntity<UpdateMemberResponseDto> updateNickname(@PathVariable("memberId") Long memberId,
+                                                                @RequestBody UpdateNicknameDto updateNicknameDto) {
+        Long memberNo = memberService.updateNickname(memberId, updateNicknameDto.getNickname());
+        return ResponseEntity.ok(new UpdateMemberResponseDto(memberNo));
     }
 }

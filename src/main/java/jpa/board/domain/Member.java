@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.Date;
 
@@ -35,5 +36,10 @@ public class Member {
         this.password = password;
         this.nickname = nickname;
         this.roleType = roleType;
+    }
+
+    public Long updateNickname(String nickname) {
+        this.nickname = nickname;
+        return no;
     }
 }
