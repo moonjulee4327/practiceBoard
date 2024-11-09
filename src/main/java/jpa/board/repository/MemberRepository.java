@@ -10,5 +10,4 @@ import java.util.List;
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
     public List<Member> findByName(String name);
-
 }
