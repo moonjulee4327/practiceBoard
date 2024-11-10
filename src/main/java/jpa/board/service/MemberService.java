@@ -2,7 +2,6 @@ package jpa.board.service;
 
 import jpa.board.domain.Member;
 import jpa.board.dto.MemberDto;
-import jpa.board.dto.UpdateNicknameDto;
 import jpa.board.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,11 +34,19 @@ public class MemberService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<MemberDto> findAll() {
         return memberRepository.findAll()
                 .stream()
-                .map(member -> new MemberDto(member.getName(), member.getNickname()))
+                .map(member -> new MemberDto(member.getNo(), member.getName(), member.getNickname(), member.getCreatedDate()))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public MemberDto findOneMember(Long memberId) {
+        return memberRepository.findById(memberId)
+                .map(member -> new MemberDto(member.getNo(), member.getName(), member.getNickname(), member.getCreatedDate()))
+                .orElseThrow(() -> new IllegalStateException("No Exist Member"));
     }
 
     @Transactional
