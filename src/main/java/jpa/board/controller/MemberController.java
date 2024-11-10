@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @RestController
@@ -22,6 +23,7 @@ public class MemberController {
                 .password(createMemberDto.getPassword())
                 .nickname(createMemberDto.getNickname())
                 .roleType(RoleType.USER)
+                .createdDate(ZonedDateTime.now())
                 .build();
 
         Long saveMemberNo = memberService.join(member);
@@ -32,6 +34,12 @@ public class MemberController {
     public ResponseEntity<Object> listMember() {
         List<MemberDto> list = memberService.findAll();
         return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/members/{memberId}")
+    public ResponseEntity<MemberDto> findOneMember(@PathVariable("memberId") Long memberId) {
+        MemberDto memberDto = memberService.findOneMember(memberId);
+        return ResponseEntity.ok(memberDto);
     }
 
     @PatchMapping("/members/{memberId}")
