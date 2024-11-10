@@ -55,4 +55,11 @@ public class MemberService {
                                                     .orElseThrow(() -> new IllegalArgumentException("해당 멤버가 존재하지 않습니다."));
         return updateMember.updateNickname(updateNickname);
     }
+
+    public void deleteMember(Long memberId) {
+        if(!memberRepository.existsById(memberId)) {
+            throw new IllegalStateException("No Exist Member");
+        }
+        memberRepository.deleteById(memberId);
+    }
 }

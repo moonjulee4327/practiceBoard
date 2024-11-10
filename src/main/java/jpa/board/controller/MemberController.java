@@ -5,6 +5,7 @@ import jpa.board.domain.RoleType;
 import jpa.board.dto.*;
 import jpa.board.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,5 +48,11 @@ public class MemberController {
                                                                 @RequestBody UpdateNicknameDto updateNicknameDto) {
         Long memberNo = memberService.updateNickname(memberId, updateNicknameDto.getNickname());
         return ResponseEntity.ok(new UpdateMemberResponseDto(memberNo));
+    }
+
+    @DeleteMapping("/members/{memberId}")
+    public ResponseEntity<Long> deleteOneMember(@PathVariable("memberId") Long memberId) {
+        memberService.deleteMember(memberId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
