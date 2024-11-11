@@ -38,7 +38,7 @@ public class MemberService {
     public List<MemberDto> findAll() {
         return memberRepository.findAll()
                 .stream()
-                .map(member -> new MemberDto(member.getNo(), member.getName(), member.getNickname(), member.getCreatedDate()))
+                .map(Member::toMemberDto)
                 .collect(Collectors.toList());
     }
 
