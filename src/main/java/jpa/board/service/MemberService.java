@@ -38,7 +38,7 @@ public class MemberService {
     public List<MemberDto> findAll() {
         return memberRepository.findAll()
                 .stream()
-                .map(member -> new MemberDto(member.getNo(), member.getName(), member.getNickname(), member.getCreatedDate()))
+                .map(Member::toMemberDto)
                 .collect(Collectors.toList());
     }
 
@@ -54,5 +54,12 @@ public class MemberService {
         Member updateMember = memberRepository.findById(memberNo)
                                                     .orElseThrow(() -> new IllegalArgumentException("해당 멤버가 존재하지 않습니다."));
         return updateMember.updateNickname(updateNickname);
+    }
+
+    public void deleteMember(Long memberId) {
+        if(!memberRepository.existsById(memberId)) {
+            throw new IllegalStateException("No Exist Member");
+        }
+        memberRepository.deleteById(memberId);
     }
 }

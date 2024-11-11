@@ -4,16 +4,14 @@ import jpa.board.domain.Member;
 import jpa.board.domain.RoleType;
 import jpa.board.dto.MemberDto;
 import jpa.board.repository.MemberRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -49,16 +47,15 @@ public class MemberServiceTest {
     @DisplayName("전체 회원 조회")
     void findAll() {
         Member member = createMember();
-        List<Member> members = new ArrayList<>();
-        members.add(member);
+
+        List<Member> members = List.of(member);
         when(memberRepository.findAll()).thenReturn(members);
 
-        List<MemberDto> list = memberService.findAll()
-                .stream()
-                .map(memberDto -> new MemberDto(member.getName(), member.getNickname()))
-                .collect(Collectors.toList());
-        
-        assertNotNull(list);
+        List<MemberDto> memberDtos = memberService.findAll();
+
+        assertNotNull(memberDtos);
+        assertEquals(1, memberDtos.size());
+        assertEquals(member.getName(), memberDtos.get(0).getName());
     }
 
     private Member createMember() {
@@ -67,6 +64,7 @@ public class MemberServiceTest {
                 .password("1234")
                 .nickname("길동")
                 .roleType(RoleType.USER)
+                .createdDate(ZonedDateTime.now())
                 .build();
     }
 }

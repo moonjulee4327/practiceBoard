@@ -2,6 +2,7 @@ package jpa.board.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import jpa.board.dto.MemberDto;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,5 +45,9 @@ public class Member {
     public Long updateNickname(String nickname) {
         this.nickname = nickname;
         return no;
+    }
+
+    public MemberDto toMemberDto() {
+        return new MemberDto(no, name, nickname, createdDate);
     }
 }
