@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class MemberServiceTest {
@@ -41,10 +41,11 @@ public class MemberServiceTest {
         Member findMember = memberService.findMember(saveNo);
 
         assertThat(member.getNo()).isEqualTo(findMember.getNo());
+        verify(memberRepository, times(1)).save(member);
     }
 
     @Test
-    @DisplayName("전체 회원 조회")
+    @DisplayName("모든 회원 조회-회원이 존재하는 경우")
     void findAll() {
         Member member = createMember();
 
@@ -56,6 +57,42 @@ public class MemberServiceTest {
         assertNotNull(memberDtos);
         assertEquals(1, memberDtos.size());
         assertEquals(member.getName(), memberDtos.get(0).getName());
+        verify(memberRepository, times(1)).findAll();
+    }
+
+    @Test
+    @DisplayName("모든 회원 조회-회원이 존재하지 않는 경우")
+    void findAllMembersNotFound() {
+        when(memberRepository.findAll()).thenReturn(List.of());
+
+        List<MemberDto> memberDtos = memberService.findAll();
+
+        assertNotNull(memberDtos);
+        assertEquals(0, memberDtos.size());
+        assertTrue(memberDtos.isEmpty());
+    }
+
+    @Test
+    @DisplayName("특정 회원 조회")
+    void findOne() {
+        Member member = createMember();
+        when(memberRepository.findById(member.getNo())).thenReturn(Optional.of(member));
+
+        MemberDto memberDto = memberService.findOneMember(member.getNo());
+
+        assertNotNull(memberDto);
+        assertEquals(member.getName(), memberDto.getName());
+        verify(memberRepository, times(1)).findById(member.getNo());
+    }
+
+    @Test
+    @DisplayName("특정 회원이 존재하지 않을 경우 예외 발생")
+    void findOneMenberNotFound() {
+        Long notFoundMemberId = 1000L;
+        when(memberRepository.findById(notFoundMemberId)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalStateException.class
+                , () -> memberService.findOneMember(notFoundMemberId));
     }
 
     private Member createMember() {
