@@ -45,6 +45,17 @@ public class MemberServiceTest {
     }
 
     @Test
+    @DisplayName("중복 회원 가입 시 예외 발생")
+    void joinDuplication() {
+        Member member = createMember();
+
+        when(memberRepository.findByName(member.getName())).thenReturn(List.of(member));
+
+        assertThrows(IllegalStateException.class, () -> memberService.join(member));
+        verify(memberRepository, times(0)).save(member);
+    }
+
+    @Test
     @DisplayName("모든 회원 조회-회원이 존재하는 경우")
     void findAll() {
         Member member = createMember();
