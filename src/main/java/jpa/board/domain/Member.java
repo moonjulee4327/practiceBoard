@@ -12,6 +12,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
+@Builder
 @Entity
 @Table(name = "MEMBER")
 @Getter
@@ -33,8 +34,17 @@ public class Member {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private ZonedDateTime createdDate;
 
-    @Builder
     public Member(String name, String password, String nickname, RoleType roleType, ZonedDateTime createdDate) {
+        this.name = name;
+        this.password = password;
+        this.nickname = nickname;
+        this.roleType = roleType;
+        this.createdDate = createdDate;
+    }
+
+    // test용 생성자
+    public Member(Long no, String name, String password, String nickname, RoleType roleType, ZonedDateTime createdDate) {
+        this.no = no;
         this.name = name;
         this.password = password;
         this.nickname = nickname;

@@ -1,12 +1,15 @@
 package jpa.board.service;
 
 import jpa.board.domain.Member;
+import jpa.board.domain.RoleType;
+import jpa.board.dto.CreateMemberDto;
 import jpa.board.dto.MemberDto;
 import jpa.board.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,7 +19,15 @@ import java.util.stream.Collectors;
 public class MemberService {
     private final MemberRepository memberRepository;
 
-    public Long join(Member member) {
+    public Long join(CreateMemberDto createMemberDto) {
+        Member member = Member.builder()
+                .name(createMemberDto.getName())
+                .password(createMemberDto.getPassword())
+                .nickname(createMemberDto.getNickname())
+                .roleType(RoleType.USER)
+                .createdDate(ZonedDateTime.now())
+                .build();
+
         validateDuplicateMember(member);
         Member savedMember = memberRepository.save(member);
         return savedMember.getNo();
