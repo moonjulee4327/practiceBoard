@@ -2,11 +2,13 @@ package jpa.board.service;
 
 import jpa.board.domain.Member;
 import jpa.board.domain.RoleType;
+import jpa.board.dto.CreateMemberDto;
 import jpa.board.dto.MemberDto;
 import jpa.board.repository.MemberRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -33,15 +35,25 @@ public class MemberServiceTest {
     @DisplayName("회원가입")
     void join() {
         Member member = createMember();
+        CreateMemberDto createMemberDto = new CreateMemberDto(member.getName(), member.getPassword(), member.getNickname());
 
-        when(memberRepository.save(member)).thenReturn(member);
-        when(memberRepository.findById(member.getNo())).thenReturn(Optional.of(member));
+        when(memberRepository.save(any(Member.class))).thenReturn(member);
 
-        Long saveNo = memberService.join(member);
-        Member findMember = memberService.findMember(saveNo);
+        Long saveNo = memberService.join(createMemberDto);
 
-        assertThat(member.getNo()).isEqualTo(findMember.getNo());
-        verify(memberRepository, times(1)).save(member);
+        assertThat(saveNo).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("중복 회원 가입 시 예외 발생")
+    void joinDuplication() {
+        Member member = createMember();
+        CreateMemberDto createMemberDto = new CreateMemberDto(member.getName(), member.getPassword(), member.getNickname());
+
+        when(memberRepository.findByName(member.getName())).thenReturn(List.of(member));
+
+        assertThrows(IllegalStateException.class, () -> memberService.join(createMemberDto));
+        verify(memberRepository, times(0)).save(member);
     }
 
     @Test
@@ -95,8 +107,27 @@ public class MemberServiceTest {
                 , () -> memberService.findOneMember(notFoundMemberId));
     }
 
+    @Test
+    @DisplayName("회원 닉네임 수정 성공")
+    void updatedNickname() {
+        Member member = createMember();
+        CreateMemberDto createMemberDto = new CreateMemberDto(member.getName(), member.getPassword(), member.getNickname());
+        String newNickname = "new";
+
+//        when(memberRepository.save(any(Member.class))).thenReturn(member);
+        when(memberRepository.findById(member.getNo())).thenReturn(Optional.of(member));
+
+        Long updatedMemberNo = memberService.updateNickname(member.getNo(), newNickname);
+
+        assertThat(updatedMemberNo).isEqualTo(member.getNo());
+        assertThat(member.getNickname()).isEqualTo(newNickname);
+
+        verify(memberRepository, times(1)).findById(member.getNo());
+    }
+
     private Member createMember() {
         return Member.builder()
+                .no(1L)
                 .name("홍길동")
                 .password("1234")
                 .nickname("길동")

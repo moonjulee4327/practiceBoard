@@ -19,15 +19,7 @@ public class MemberController {
 
     @PostMapping("/members")
     public ResponseEntity<CreateMemberResponseDto> saveMember(@RequestBody CreateMemberDto createMemberDto) {
-        Member member = Member.builder()
-                .name(createMemberDto.getName())
-                .password(createMemberDto.getPassword())
-                .nickname(createMemberDto.getNickname())
-                .roleType(RoleType.USER)
-                .createdDate(ZonedDateTime.now())
-                .build();
-
-        Long saveMemberNo = memberService.join(member);
+        Long saveMemberNo = memberService.join(createMemberDto);
         return ResponseEntity.ok(new CreateMemberResponseDto(saveMemberNo));
     }
 
