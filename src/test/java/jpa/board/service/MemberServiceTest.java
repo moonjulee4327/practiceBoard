@@ -8,16 +8,13 @@ import jpa.board.repository.MemberRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -111,10 +108,8 @@ public class MemberServiceTest {
     @DisplayName("회원 닉네임 수정 성공")
     void updatedNickname() {
         Member member = createMember();
-        CreateMemberDto createMemberDto = new CreateMemberDto(member.getName(), member.getPassword(), member.getNickname());
         String newNickname = "new";
 
-//        when(memberRepository.save(any(Member.class))).thenReturn(member);
         when(memberRepository.findById(member.getNo())).thenReturn(Optional.of(member));
 
         Long updatedMemberNo = memberService.updateNickname(member.getNo(), newNickname);
@@ -123,6 +118,43 @@ public class MemberServiceTest {
         assertThat(member.getNickname()).isEqualTo(newNickname);
 
         verify(memberRepository, times(1)).findById(member.getNo());
+    }
+
+    @Test
+    @DisplayName("회원 닉네임 수정 실패 시 예외 발생")
+    void updateMemberNotFound() {
+        Long notFoundMemberId = 1000L;
+        String newNickname = "new";
+
+        when(memberRepository.findById(notFoundMemberId)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> memberService.updateNickname(notFoundMemberId, newNickname));
+
+        verify(memberRepository, times(1)).findById(notFoundMemberId);
+        verifyNoMoreInteractions(memberRepository);
+    }
+
+    @Test
+    @DisplayName("회원 삭제 성공")
+    void deleteMember() {
+        Member member = createMember();
+
+        when(memberRepository.existsById(member.getNo())).thenReturn(true);
+
+        memberService.deleteMember(member.getNo());
+
+        verify(memberRepository, times(1)).deleteById(member.getNo());
+    }
+
+    @Test
+    @DisplayName("회원 삭제 실패 시 예외 발생")
+    void deleteMemberNotFound() {
+        Long notFoundMemberId = 1000L;
+
+        when(memberRepository.existsById(notFoundMemberId)).thenReturn(false);
+
+        assertThrows(IllegalStateException.class, () -> memberService.deleteMember(notFoundMemberId));
+
+        verify(memberRepository, never()).deleteById(notFoundMemberId);
     }
 
     private Member createMember() {
