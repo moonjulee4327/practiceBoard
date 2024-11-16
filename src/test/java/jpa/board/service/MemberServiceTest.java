@@ -121,6 +121,19 @@ public class MemberServiceTest {
     }
 
     @Test
+    @DisplayName("회원 닉네임 수정 실패 시 예외 발생")
+    void updateMemberNotFound() {
+        Long notFoundMemberId = 1000L;
+        String newNickname = "new";
+
+        when(memberRepository.findById(notFoundMemberId)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> memberService.updateNickname(notFoundMemberId, newNickname));
+
+        verify(memberRepository, times(1)).findById(notFoundMemberId);
+        verifyNoMoreInteractions(memberRepository);
+    }
+
+    @Test
     @DisplayName("회원 삭제 성공")
     void deleteMember() {
         Member member = createMember();
