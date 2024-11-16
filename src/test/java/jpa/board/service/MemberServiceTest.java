@@ -120,6 +120,30 @@ public class MemberServiceTest {
         verify(memberRepository, times(1)).findById(member.getNo());
     }
 
+    @Test
+    @DisplayName("회원 삭제 성공")
+    void deleteMember() {
+        Member member = createMember();
+
+        when(memberRepository.existsById(member.getNo())).thenReturn(true);
+
+        memberService.deleteMember(member.getNo());
+
+        verify(memberRepository, times(1)).deleteById(member.getNo());
+    }
+
+    @Test
+    @DisplayName("회원 삭제 실패 시 예외 발생")
+    void deleteMemberNotFound() {
+        Long memberNo = 1000L;
+
+        when(memberRepository.existsById(memberNo)).thenReturn(false);
+
+        assertThrows(IllegalStateException.class, () -> memberService.deleteMember(memberNo));
+
+        verify(memberRepository, never()).deleteById(memberNo);
+    }
+
     private Member createMember() {
         return Member.builder()
                 .no(1L)
