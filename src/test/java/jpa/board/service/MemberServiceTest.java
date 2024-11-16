@@ -135,13 +135,13 @@ public class MemberServiceTest {
     @Test
     @DisplayName("회원 삭제 실패 시 예외 발생")
     void deleteMemberNotFound() {
-        Long memberNo = 1000L;
+        Long notFoundMemberId = 1000L;
 
-        when(memberRepository.existsById(memberNo)).thenReturn(false);
+        when(memberRepository.existsById(notFoundMemberId)).thenReturn(false);
 
-        assertThrows(IllegalStateException.class, () -> memberService.deleteMember(memberNo));
+        assertThrows(IllegalStateException.class, () -> memberService.deleteMember(notFoundMemberId));
 
-        verify(memberRepository, never()).deleteById(memberNo);
+        verify(memberRepository, never()).deleteById(notFoundMemberId);
     }
 
     private Member createMember() {
