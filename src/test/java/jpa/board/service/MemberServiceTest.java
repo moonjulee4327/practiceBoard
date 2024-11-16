@@ -8,16 +8,13 @@ import jpa.board.repository.MemberRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -111,10 +108,8 @@ public class MemberServiceTest {
     @DisplayName("회원 닉네임 수정 성공")
     void updatedNickname() {
         Member member = createMember();
-        CreateMemberDto createMemberDto = new CreateMemberDto(member.getName(), member.getPassword(), member.getNickname());
         String newNickname = "new";
 
-//        when(memberRepository.save(any(Member.class))).thenReturn(member);
         when(memberRepository.findById(member.getNo())).thenReturn(Optional.of(member));
 
         Long updatedMemberNo = memberService.updateNickname(member.getNo(), newNickname);
