@@ -18,6 +18,6 @@ public class Post {
     private String content;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "MEMBER_NO")
     private Member member;
 }
