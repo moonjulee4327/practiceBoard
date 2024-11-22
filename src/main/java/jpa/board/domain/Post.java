@@ -1,6 +1,7 @@
 package jpa.board.domain;
 
 import jakarta.persistence.*;
+import jpa.board.dto.PostResponceDto;
 import lombok.*;
 
 @Builder
@@ -20,4 +21,8 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "MEMBER_NO")
     private Member member;
+
+    public PostResponceDto toPostDto() {
+        return new PostResponceDto(id, title, content, member.toMemberDto());
+    }
 }
