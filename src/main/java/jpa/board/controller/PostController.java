@@ -1,8 +1,6 @@
 package jpa.board.controller;
 
-import jpa.board.dto.CreatePostRequest;
-import jpa.board.dto.CreatePostResponceDto;
-import jpa.board.dto.PostResponceDto;
+import jpa.board.dto.*;
 import jpa.board.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -31,5 +29,13 @@ public class PostController {
     public ResponseEntity<PostResponceDto> findPostOne(@PathVariable("postId") Long postId) {
         PostResponceDto postResponceDto = postService.findPostOne(postId);
         return ResponseEntity.ok(postResponceDto);
+    }
+
+    @PatchMapping("/posts/{postId}")
+    public ResponseEntity<UpdatePostDto> updatePostOne(@PathVariable("postId") Long postId, @RequestBody UpdatePostRequestDto updatePostRequestDto) {
+        System.out.println(updatePostRequestDto.getTitle());
+        System.out.println(updatePostRequestDto.getContent());
+        UpdatePostDto updatePostDto = postService.updatePostOne(postId, updatePostRequestDto);
+        return ResponseEntity.ok(updatePostDto);
     }
 }

@@ -4,6 +4,8 @@ import jpa.board.domain.Member;
 import jpa.board.domain.Post;
 import jpa.board.dto.CreatePostRequest;
 import jpa.board.dto.PostResponceDto;
+import jpa.board.dto.UpdatePostDto;
+import jpa.board.dto.UpdatePostRequestDto;
 import jpa.board.repository.MemberRepository;
 import jpa.board.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -44,5 +46,13 @@ public class PostService {
     public PostResponceDto findPostOne(Long postId) {
         return  postRepository.findById(postId)
                 .map(Post::toPostDto).get();
+    }
+
+    @Transactional
+    public UpdatePostDto updatePostOne(Long postId, UpdatePostRequestDto updatePostRequestDto) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("No Exist Post"));
+        Long updatePostId = post.updatePost(updatePostRequestDto.getTitle(), updatePostRequestDto.getContent());
+        return new UpdatePostDto(updatePostId);
     }
 }
