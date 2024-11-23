@@ -25,4 +25,10 @@ public class Post {
     public PostResponceDto toPostDto() {
         return new PostResponceDto(id, title, content, member.toMemberDto());
     }
+
+    public Long updatePost(String title, String content) {
+        this.title = title;
+        this.content = content;
+        return id;
+    }
 }
