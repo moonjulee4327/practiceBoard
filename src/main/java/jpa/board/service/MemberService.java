@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class MemberService {
     private final MemberRepository memberRepository;
 
-    public Long join(CreateMemberDto createMemberDto) {
+    public Long saveMember(CreateMemberDto createMemberDto) {
         Member member = Member.builder()
                 .name(createMemberDto.getName())
                 .password(createMemberDto.getPassword())
@@ -46,7 +46,7 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public List<MemberDto> findAll() {
+    public List<MemberDto> findAllMembers() {
         return memberRepository.findAll()
                 .stream()
                 .map(Member::toMemberDto)

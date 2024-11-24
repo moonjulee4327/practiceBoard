@@ -20,13 +20,13 @@ public class MemberController {
 
     @PostMapping("")
     public ResponseEntity<CreateMemberResponseDto> createMember(@RequestBody CreateMemberDto createMemberDto) {
-        Long saveMemberNo = memberService.join(createMemberDto);
+        Long saveMemberNo = memberService.saveMember(createMemberDto);
         return ResponseEntity.ok(new CreateMemberResponseDto(saveMemberNo));
     }
 
     @GetMapping("")
     public ResponseEntity<Object> getMembers() {
-        List<MemberDto> list = memberService.findAll();
+        List<MemberDto> list = memberService.findAllMembers();
         return ResponseEntity.ok(list);
     }
 
