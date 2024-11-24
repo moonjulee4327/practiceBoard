@@ -23,9 +23,10 @@ public class PostService {
 
     public Long savePost(CreatePostRequest createPostRequest) {
         Member member = memberRepository.findById(createPostRequest.getMemberNo())
-                .orElseThrow(() -> new IllegalArgumentException("No Exist Member"));
+                .orElseThrow(() -> new IllegalArgumentException("No Exist Post"));
 
-        Post post = Post.builder().title(createPostRequest.getTitle())
+        Post post = Post.builder()
+                .title(createPostRequest.getTitle())
                 .content(createPostRequest.getContent())
                 .member(member)
                 .build();
@@ -35,7 +36,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponceDto> findPostAll() {
+    public List<PostResponceDto> findAllPost() {
         return postRepository.findAll()
                 .stream()
                 .map(Post::toPostDto)
@@ -43,16 +44,24 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostResponceDto findPostOne(Long postId) {
+    public PostResponceDto findOnePost(Long postId) {
         return  postRepository.findById(postId)
-                .map(Post::toPostDto).get();
+                .map(Post::toPostDto)
+                .orElseThrow(() -> new IllegalStateException("No Exist Post"));
     }
 
     @Transactional
-    public UpdatePostDto updatePostOne(Long postId, UpdatePostRequestDto updatePostRequestDto) {
+    public UpdatePostDto updateOnePost(Long postId, UpdatePostRequestDto updatePostRequestDto) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("No Exist Post"));
         Long updatePostId = post.updatePost(updatePostRequestDto.getTitle(), updatePostRequestDto.getContent());
         return new UpdatePostDto(updatePostId);
+    }
+
+    public void deletePostById(Long postId) {
+        if(!postRepository.existsById(postId)) {
+            throw new IllegalStateException("No Exist Post");
+        }
+        postRepository.deleteById(postId);
     }
 }
