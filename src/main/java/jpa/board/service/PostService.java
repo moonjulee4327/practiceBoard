@@ -23,9 +23,10 @@ public class PostService {
 
     public Long savePost(CreatePostRequest createPostRequest) {
         Member member = memberRepository.findById(createPostRequest.getMemberNo())
-                .orElseThrow(() -> new IllegalArgumentException("No Exist Member"));
+                .orElseThrow(() -> new IllegalArgumentException("No Exist Post"));
 
-        Post post = Post.builder().title(createPostRequest.getTitle())
+        Post post = Post.builder()
+                .title(createPostRequest.getTitle())
                 .content(createPostRequest.getContent())
                 .member(member)
                 .build();
@@ -45,7 +46,8 @@ public class PostService {
     @Transactional(readOnly = true)
     public PostResponceDto findOnePost(Long postId) {
         return  postRepository.findById(postId)
-                .map(Post::toPostDto).get();
+                .map(Post::toPostDto)
+                .orElseThrow(() -> new IllegalStateException("No Exist Post"));
     }
 
     @Transactional
