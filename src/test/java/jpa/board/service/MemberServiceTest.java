@@ -36,7 +36,7 @@ public class MemberServiceTest {
 
         when(memberRepository.save(any(Member.class))).thenReturn(member);
 
-        Long saveNo = memberService.join(createMemberDto);
+        Long saveNo = memberService.saveMember(createMemberDto);
 
         assertThat(saveNo).isEqualTo(1L);
     }
@@ -49,7 +49,7 @@ public class MemberServiceTest {
 
         when(memberRepository.findByName(member.getName())).thenReturn(List.of(member));
 
-        assertThrows(IllegalStateException.class, () -> memberService.join(createMemberDto));
+        assertThrows(IllegalStateException.class, () -> memberService.saveMember(createMemberDto));
         verify(memberRepository, times(0)).save(member);
     }
 
@@ -61,7 +61,7 @@ public class MemberServiceTest {
         List<Member> members = List.of(member);
         when(memberRepository.findAll()).thenReturn(members);
 
-        List<MemberDto> memberDtos = memberService.findAll();
+        List<MemberDto> memberDtos = memberService.findAllMembers();
 
         assertNotNull(memberDtos);
         assertEquals(1, memberDtos.size());
@@ -74,7 +74,7 @@ public class MemberServiceTest {
     void findAllMembersNotFound() {
         when(memberRepository.findAll()).thenReturn(List.of());
 
-        List<MemberDto> memberDtos = memberService.findAll();
+        List<MemberDto> memberDtos = memberService.findAllMembers();
 
         assertNotNull(memberDtos);
         assertEquals(0, memberDtos.size());
