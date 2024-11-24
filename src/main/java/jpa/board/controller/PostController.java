@@ -3,6 +3,7 @@ package jpa.board.controller;
 import jpa.board.dto.*;
 import jpa.board.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,5 +37,11 @@ public class PostController {
     public ResponseEntity<UpdatePostDto> updatePost(@PathVariable("postId") Long postId, @RequestBody UpdatePostRequestDto updatePostRequestDto) {
         UpdatePostDto updatePostDto = postService.updateOnePost(postId, updatePostRequestDto);
         return ResponseEntity.ok(updatePostDto);
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Long> deletePost(@PathVariable("postId") Long postId) {
+        postService.deletePostById(postId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

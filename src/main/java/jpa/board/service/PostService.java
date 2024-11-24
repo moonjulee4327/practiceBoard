@@ -55,4 +55,11 @@ public class PostService {
         Long updatePostId = post.updatePost(updatePostRequestDto.getTitle(), updatePostRequestDto.getContent());
         return new UpdatePostDto(updatePostId);
     }
+
+    public void deletePostById(Long postId) {
+        if(!postRepository.existsById(postId)) {
+            throw new IllegalStateException("No Exist Post");
+        }
+        postRepository.deleteById(postId);
+    }
 }
