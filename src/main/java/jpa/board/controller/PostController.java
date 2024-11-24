@@ -32,7 +32,7 @@ public class PostController {
         return ResponseEntity.ok(postResponceDto);
     }
 
-    @PatchMapping("/posts/{postId}")
+    @PatchMapping("/{postId}")
     public ResponseEntity<UpdatePostDto> updatePost(@PathVariable("postId") Long postId, @RequestBody UpdatePostRequestDto updatePostRequestDto) {
         UpdatePostDto updatePostDto = postService.updateOnePost(postId, updatePostRequestDto);
         return ResponseEntity.ok(updatePostDto);
