@@ -35,7 +35,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponceDto> findPostAll() {
+    public List<PostResponceDto> findAllPost() {
         return postRepository.findAll()
                 .stream()
                 .map(Post::toPostDto)
@@ -43,13 +43,13 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostResponceDto findPostOne(Long postId) {
+    public PostResponceDto findOnePost(Long postId) {
         return  postRepository.findById(postId)
                 .map(Post::toPostDto).get();
     }
 
     @Transactional
-    public UpdatePostDto updatePostOne(Long postId, UpdatePostRequestDto updatePostRequestDto) {
+    public UpdatePostDto updateOnePost(Long postId, UpdatePostRequestDto updatePostRequestDto) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("No Exist Post"));
         Long updatePostId = post.updatePost(updatePostRequestDto.getTitle(), updatePostRequestDto.getContent());

@@ -9,33 +9,32 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/posts")
 @RequiredArgsConstructor
 public class PostController {
     private final PostService postService;
 
-    @PostMapping("/posts")
+    @PostMapping("")
     public ResponseEntity<CreatePostResponceDto> createPost(@RequestBody CreatePostRequest createPostRequest) {
         Long postId = postService.savePost(createPostRequest);
         return ResponseEntity.ok(new CreatePostResponceDto(postId));
     }
 
-    @GetMapping("/posts")
-    public ResponseEntity<List<PostResponceDto>> listPost() {
-        List<PostResponceDto> list = postService.findPostAll();
+    @GetMapping("")
+    public ResponseEntity<List<PostResponceDto>> getPosts() {
+        List<PostResponceDto> list = postService.findAllPost();
         return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/posts/{postId}")
-    public ResponseEntity<PostResponceDto> findPostOne(@PathVariable("postId") Long postId) {
-        PostResponceDto postResponceDto = postService.findPostOne(postId);
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostResponceDto> getPost(@PathVariable("postId") Long postId) {
+        PostResponceDto postResponceDto = postService.findOnePost(postId);
         return ResponseEntity.ok(postResponceDto);
     }
 
     @PatchMapping("/posts/{postId}")
-    public ResponseEntity<UpdatePostDto> updatePostOne(@PathVariable("postId") Long postId, @RequestBody UpdatePostRequestDto updatePostRequestDto) {
-        System.out.println(updatePostRequestDto.getTitle());
-        System.out.println(updatePostRequestDto.getContent());
-        UpdatePostDto updatePostDto = postService.updatePostOne(postId, updatePostRequestDto);
+    public ResponseEntity<UpdatePostDto> updatePost(@PathVariable("postId") Long postId, @RequestBody UpdatePostRequestDto updatePostRequestDto) {
+        UpdatePostDto updatePostDto = postService.updateOnePost(postId, updatePostRequestDto);
         return ResponseEntity.ok(updatePostDto);
     }
 }
