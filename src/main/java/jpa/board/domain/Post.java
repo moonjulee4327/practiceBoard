@@ -14,8 +14,10 @@ public class Post {
     @GeneratedValue
     private Long id;
 
+    @Column(length = 60)
     private String title;
 
+    @Column(length = 6000)
     private String content;
 
     @ManyToOne
