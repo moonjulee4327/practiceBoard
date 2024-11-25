@@ -30,12 +30,7 @@ public class MemberService {
 
         validateDuplicateMember(member);
         Member savedMember = memberRepository.save(member);
-        return savedMember.getNo();
-    }
-
-    @Transactional(readOnly = true)
-    public Member findMember(Long memberNo) {
-        return memberRepository.findById(memberNo).get();
+        return savedMember.getId();
     }
 
     private void validateDuplicateMember(Member member) {
@@ -56,7 +51,7 @@ public class MemberService {
     @Transactional(readOnly = true)
     public MemberDto findOneMember(Long memberId) {
         return memberRepository.findById(memberId)
-                .map(member -> new MemberDto(member.getNo(), member.getName(), member.getNickname(), member.getCreatedDate()))
+                .map(member -> new MemberDto(member.getId(), member.getName(), member.getNickname(), member.getCreatedDate()))
                 .orElseThrow(() -> new IllegalStateException("No Exist Member"));
     }
 
