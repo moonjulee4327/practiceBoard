@@ -85,13 +85,13 @@ public class MemberServiceTest {
     @DisplayName("특정 회원 조회")
     void findOne() {
         Member member = createMember();
-        when(memberRepository.findById(member.getNo())).thenReturn(Optional.of(member));
+        when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
 
-        MemberDto memberDto = memberService.findOneMember(member.getNo());
+        MemberDto memberDto = memberService.findOneMember(member.getId());
 
         assertNotNull(memberDto);
         assertEquals(member.getName(), memberDto.getName());
-        verify(memberRepository, times(1)).findById(member.getNo());
+        verify(memberRepository, times(1)).findById(member.getId());
     }
 
     @Test
@@ -110,14 +110,14 @@ public class MemberServiceTest {
         Member member = createMember();
         String newNickname = "new";
 
-        when(memberRepository.findById(member.getNo())).thenReturn(Optional.of(member));
+        when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
 
-        Long updatedMemberNo = memberService.updateNickname(member.getNo(), newNickname);
+        Long updatedMemberNo = memberService.updateNickname(member.getId(), newNickname);
 
-        assertThat(updatedMemberNo).isEqualTo(member.getNo());
+        assertThat(updatedMemberNo).isEqualTo(member.getId());
         assertThat(member.getNickname()).isEqualTo(newNickname);
 
-        verify(memberRepository, times(1)).findById(member.getNo());
+        verify(memberRepository, times(1)).findById(member.getId());
     }
 
     @Test
@@ -138,11 +138,11 @@ public class MemberServiceTest {
     void deleteMember() {
         Member member = createMember();
 
-        when(memberRepository.existsById(member.getNo())).thenReturn(true);
+        when(memberRepository.existsById(member.getId())).thenReturn(true);
 
-        memberService.deleteMember(member.getNo());
+        memberService.deleteMember(member.getId());
 
-        verify(memberRepository, times(1)).deleteById(member.getNo());
+        verify(memberRepository, times(1)).deleteById(member.getId());
     }
 
     @Test
@@ -159,7 +159,7 @@ public class MemberServiceTest {
 
     private Member createMember() {
         return Member.builder()
-                .no(1L)
+                .id(1L)
                 .name("홍길동")
                 .password("1234")
                 .nickname("길동")
