@@ -6,6 +6,7 @@ import jpa.board.dto.CreateMemberDto;
 import jpa.board.dto.MemberDto;
 import jpa.board.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,10 +20,12 @@ import java.util.stream.Collectors;
 public class MemberService {
     private final MemberRepository memberRepository;
 
+    private final PasswordEncoder passwordEncoder;
+
     public Long saveMember(CreateMemberDto createMemberDto) {
         Member member = Member.builder()
                 .name(createMemberDto.getName())
-                .password(createMemberDto.getPassword())
+                .password(passwordEncoder.encode(createMemberDto.getPassword()))
                 .nickname(createMemberDto.getNickname())
                 .roleType(RoleType.USER)
                 .createdDate(ZonedDateTime.now())
