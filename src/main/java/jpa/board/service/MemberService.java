@@ -6,6 +6,7 @@ import jpa.board.dto.CreateMemberDto;
 import jpa.board.dto.MemberDto;
 import jpa.board.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,10 +20,12 @@ import java.util.stream.Collectors;
 public class MemberService {
     private final MemberRepository memberRepository;
 
+    private final PasswordEncoder passwordEncoder;
+
     public Long saveMember(CreateMemberDto createMemberDto) {
         Member member = Member.builder()
                 .name(createMemberDto.getName())
-                .password(createMemberDto.getPassword())
+                .password(passwordEncoder.encode(createMemberDto.getPassword()))
                 .nickname(createMemberDto.getNickname())
                 .roleType(RoleType.USER)
                 .createdDate(ZonedDateTime.now())
@@ -58,7 +61,7 @@ public class MemberService {
     @Transactional
     public Long updateNickname(Long memberNo, String updateNickname) {
         Member updateMember = memberRepository.findById(memberNo)
-                                                    .orElseThrow(() -> new IllegalArgumentException("해당 멤버가 존재하지 않습니다."));
+                                                    .orElseThrow(() -> new IllegalArgumentException("No Exist Member"));
         return updateMember.updateNickname(updateNickname);
     }
 
