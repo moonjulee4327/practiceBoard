@@ -58,7 +58,7 @@ public class MemberService {
     @Transactional
     public Long updateNickname(Long memberNo, String updateNickname) {
         Member updateMember = memberRepository.findById(memberNo)
-                                                    .orElseThrow(() -> new IllegalArgumentException("해당 멤버가 존재하지 않습니다."));
+                                                    .orElseThrow(() -> new IllegalArgumentException("No Exist Member"));
         return updateMember.updateNickname(updateNickname);
     }
 
