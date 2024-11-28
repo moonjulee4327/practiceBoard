@@ -1,9 +1,11 @@
 package jpa.board.service;
 
+import jpa.board.config.JwtTokenProvider;
 import jpa.board.domain.Member;
 import jpa.board.domain.RoleType;
 import jpa.board.dto.CreateMemberDto;
 import jpa.board.dto.MemberDto;
+import jpa.board.dto.SignInDto;
 import jpa.board.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +23,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final JwtTokenProvider jwtTokenProvider;
 
     public Long saveMember(CreateMemberDto createMemberDto) {
         Member member = Member.builder()
@@ -70,5 +74,11 @@ public class MemberService {
             throw new IllegalStateException("No Exist Member");
         }
         memberRepository.deleteById(memberId);
+    }
+
+    public String signIn(SignInDto signInDto) {
+        Member loginMember = memberRepository.findById(signInDto.getMemberId())
+                .orElseThrow(() -> new IllegalStateException("No Exist Member"));
+        return jwtTokenProvider.generateToken(loginMember.getId(), loginMember.getRoleType());
     }
 }
