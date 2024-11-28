@@ -48,4 +48,10 @@ public class MemberController {
         memberService.deleteMember(memberId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    @PostMapping("login")
+    public ResponseEntity<TokenResponse> signIn(@RequestBody SignInDto signInDto) {
+        String token = memberService.signIn(signInDto);
+        return ResponseEntity.ok(new TokenResponse(token));
+    }
 }
