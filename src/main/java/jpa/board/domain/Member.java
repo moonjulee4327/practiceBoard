@@ -7,18 +7,25 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.ZonedDateTime;
+import java.util.Collection;
+import java.util.Collections;
 
 @Builder
 @Entity
 @Table(name = "MEMBER")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member {
+public class Member implements UserDetails {
     @Id
     @GeneratedValue
     private Long id;
+
+    private String email;
 
     private String name;
 
@@ -32,8 +39,9 @@ public class Member {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private ZonedDateTime createdDate;
 
-    public Member(String name, String password, String nickname, RoleType roleType, ZonedDateTime createdDate) {
+    public Member(String name, String email, String password, String nickname, RoleType roleType, ZonedDateTime createdDate) {
         this.name = name;
+        this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.roleType = roleType;
@@ -41,9 +49,10 @@ public class Member {
     }
 
     // test용 생성자
-    public Member(Long id, String name, String password, String nickname, RoleType roleType, ZonedDateTime createdDate) {
+    public Member(Long id, String email, String name, String password, String nickname, RoleType roleType, ZonedDateTime createdDate) {
         this.id = id;
         this.name = name;
+        this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.roleType = roleType;
@@ -57,5 +66,35 @@ public class Member {
 
     public MemberDto toMemberDto() {
         return new MemberDto(id, name, nickname, createdDate);
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singleton(new SimpleGrantedAuthority(roleType.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        return name;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

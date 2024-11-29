@@ -28,6 +28,7 @@ public class MemberService {
 
     public Long saveMember(CreateMemberDto createMemberDto) {
         Member member = Member.builder()
+                .email(createMemberDto.getEmail())
                 .name(createMemberDto.getName())
                 .password(passwordEncoder.encode(createMemberDto.getPassword()))
                 .nickname(createMemberDto.getNickname())

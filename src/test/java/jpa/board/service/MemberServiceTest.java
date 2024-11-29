@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -25,6 +26,9 @@ public class MemberServiceTest {
     @Mock
     private MemberRepository memberRepository;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private MemberService memberService;
 
@@ -32,7 +36,7 @@ public class MemberServiceTest {
     @DisplayName("회원가입")
     void join() {
         Member member = createMember();
-        CreateMemberDto createMemberDto = new CreateMemberDto(member.getName(), member.getPassword(), member.getNickname());
+        CreateMemberDto createMemberDto = new CreateMemberDto(member.getEmail(), member.getName(), member.getPassword(), member.getNickname());
 
         when(memberRepository.save(any(Member.class))).thenReturn(member);
 
@@ -45,7 +49,7 @@ public class MemberServiceTest {
     @DisplayName("중복 회원 가입 시 예외 발생")
     void joinDuplication() {
         Member member = createMember();
-        CreateMemberDto createMemberDto = new CreateMemberDto(member.getName(), member.getPassword(), member.getNickname());
+        CreateMemberDto createMemberDto = new CreateMemberDto(member.getEmail(), member.getName(), member.getPassword(), member.getNickname());
 
         when(memberRepository.findByName(member.getName())).thenReturn(List.of(member));
 
@@ -161,7 +165,8 @@ public class MemberServiceTest {
         return Member.builder()
                 .id(1L)
                 .name("홍길동")
-                .password("1234")
+                .email("hong@board.com")
+                .password(passwordEncoder.encode("1234"))
                 .nickname("길동")
                 .roleType(RoleType.USER)
                 .createdDate(ZonedDateTime.now())
