@@ -1,7 +1,5 @@
 package jpa.board.controller;
 
-import jpa.board.domain.Member;
-import jpa.board.domain.RoleType;
 import jpa.board.dto.*;
 import jpa.board.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 
 @RestController
@@ -50,8 +47,8 @@ public class MemberController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<TokenResponse> signIn(@RequestBody SignInDto signInDto) {
-        String token = memberService.signIn(signInDto);
-        return ResponseEntity.ok(new TokenResponse(token));
+    public ResponseEntity<JwtTokenResponse> signIn(@RequestBody SignInDto signInDto) {
+        JwtTokenResponse jwtTokenResponse = memberService.signIn(signInDto);
+        return ResponseEntity.ok(jwtTokenResponse);
     }
 }

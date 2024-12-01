@@ -4,10 +4,12 @@ import jpa.board.config.JwtTokenProvider;
 import jpa.board.domain.Member;
 import jpa.board.domain.RoleType;
 import jpa.board.dto.CreateMemberDto;
+import jpa.board.dto.JwtTokenResponse;
 import jpa.board.dto.MemberDto;
 import jpa.board.dto.SignInDto;
 import jpa.board.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,9 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     private final JwtTokenProvider jwtTokenProvider;
+
+    @Value("${jwt.token-header-prefix}")
+    private String tokenHeaderPrefix;
 
     public Long saveMember(CreateMemberDto createMemberDto) {
         Member member = Member.builder()
@@ -77,9 +82,13 @@ public class MemberService {
         memberRepository.deleteById(memberId);
     }
 
-    public String signIn(SignInDto signInDto) {
+    public JwtTokenResponse signIn(SignInDto signInDto) {
         Member loginMember = memberRepository.findById(signInDto.getMemberId())
                 .orElseThrow(() -> new IllegalStateException("No Exist Member"));
-        return jwtTokenProvider.generateToken(loginMember.getId(), loginMember.getRoleType());
+        String accessToken = jwtTokenProvider.generateToken(loginMember.getId(), loginMember.getRoleType());
+        return JwtTokenResponse.builder()
+                .grantType(tokenHeaderPrefix)
+                .accessToken(accessToken)
+                .build();
     }
 }
