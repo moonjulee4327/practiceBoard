@@ -1,7 +1,7 @@
 package jpa.board.domain;
 
 import jakarta.persistence.*;
-import jpa.board.dto.PostResponceDto;
+import jpa.board.dto.PostResponseDto;
 import lombok.*;
 
 @Builder
@@ -24,8 +24,8 @@ public class Post {
     @JoinColumn(name = "MEMBER_NO")
     private Member member;
 
-    public PostResponceDto toPostDto() {
-        return new PostResponceDto(id, title, content, member.toMemberDto());
+    public PostResponseDto toPostDto() {
+        return new PostResponseDto(id, title, content, member.toMemberDto());
     }
 
     public Long updatePost(String title, String content) {

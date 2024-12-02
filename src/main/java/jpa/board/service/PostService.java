@@ -3,7 +3,7 @@ package jpa.board.service;
 import jpa.board.domain.Member;
 import jpa.board.domain.Post;
 import jpa.board.dto.CreatePostRequest;
-import jpa.board.dto.PostResponceDto;
+import jpa.board.dto.PostResponseDto;
 import jpa.board.dto.UpdatePostDto;
 import jpa.board.dto.UpdatePostRequestDto;
 import jpa.board.repository.MemberRepository;
@@ -36,7 +36,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponceDto> findAllPost() {
+    public List<PostResponseDto> findAllPost() {
         return postRepository.findAll()
                 .stream()
                 .map(Post::toPostDto)
@@ -44,7 +44,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostResponceDto findOnePost(Long postId) {
+    public PostResponseDto findOnePost(Long postId) {
         return  postRepository.findById(postId)
                 .map(Post::toPostDto)
                 .orElseThrow(() -> new IllegalStateException("No Exist Post"));
