@@ -16,20 +16,20 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("")
-    public ResponseEntity<CreatePostResponceDto> createPost(@RequestBody CreatePostRequest createPostRequest) {
+    public ResponseEntity<CreatePostResponseDto> createPost(@RequestBody CreatePostRequest createPostRequest) {
         Long postId = postService.savePost(createPostRequest);
-        return ResponseEntity.ok(new CreatePostResponceDto(postId));
+        return ResponseEntity.ok(new CreatePostResponseDto(postId));
     }
 
     @GetMapping("")
-    public ResponseEntity<List<PostResponceDto>> getPosts() {
-        List<PostResponceDto> list = postService.findAllPost();
+    public ResponseEntity<List<PostResponseDto>> getPosts() {
+        List<PostResponseDto> list = postService.findAllPost();
         return ResponseEntity.ok(list);
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<PostResponceDto> getPost(@PathVariable("postId") Long postId) {
-        PostResponceDto postResponceDto = postService.findOnePost(postId);
+    public ResponseEntity<PostResponseDto> getPost(@PathVariable("postId") Long postId) {
+        PostResponseDto postResponceDto = postService.findOnePost(postId);
         return ResponseEntity.ok(postResponceDto);
     }
 
