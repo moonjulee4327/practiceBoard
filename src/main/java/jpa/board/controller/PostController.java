@@ -29,8 +29,8 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<PostResponseDto> getPost(@PathVariable("postId") Long postId) {
-        PostResponseDto postResponceDto = postService.findOnePost(postId);
-        return ResponseEntity.ok(postResponceDto);
+        PostResponseDto postResponseDto = postService.findOnePost(postId);
+        return ResponseEntity.ok(postResponseDto);
     }
 
     @PatchMapping("/{postId}")
