@@ -16,9 +16,9 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("")
-    public ResponseEntity<CreateMemberResponseDto> createMember(@RequestBody CreateMemberDto createMemberDto) {
+    public ResponseEntity<MemberResponseDto> createMember(@RequestBody CreateMemberDto createMemberDto) {
         Long saveMemberNo = memberService.saveMember(createMemberDto);
-        return ResponseEntity.ok(new CreateMemberResponseDto(saveMemberNo));
+        return ResponseEntity.ok(new MemberResponseDto(saveMemberNo));
     }
 
     @GetMapping("")
@@ -34,10 +34,10 @@ public class MemberController {
     }
 
     @PatchMapping("/{memberId}")
-    public ResponseEntity<UpdateMemberResponseDto> updateMember(@PathVariable("memberId") Long memberId,
-                                                                @RequestBody UpdateNicknameDto updateNicknameDto) {
+    public ResponseEntity<MemberResponseDto> updateMember(@PathVariable("memberId") Long memberId,
+                                                          @RequestBody UpdateNicknameDto updateNicknameDto) {
         Long memberNo = memberService.updateNickname(memberId, updateNicknameDto.getNickname());
-        return ResponseEntity.ok(new UpdateMemberResponseDto(memberNo));
+        return ResponseEntity.ok(new MemberResponseDto(memberNo));
     }
 
     @DeleteMapping("/{memberId}")
@@ -46,7 +46,7 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PostMapping("login")
+    @PostMapping("/login")
     public ResponseEntity<JwtTokenResponse> signIn(@RequestBody SignInDto signInDto) {
         JwtTokenResponse jwtTokenResponse = memberService.signIn(signInDto);
         return ResponseEntity.ok(jwtTokenResponse);
