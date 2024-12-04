@@ -16,9 +16,9 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("")
-    public ResponseEntity<CreatePostResponseDto> createPost(@RequestBody CreatePostRequest createPostRequest) {
+    public ResponseEntity<PostIdDto> createPost(@RequestBody CreatePostRequest createPostRequest) {
         Long postId = postService.savePost(createPostRequest);
-        return ResponseEntity.ok(new CreatePostResponseDto(postId));
+        return ResponseEntity.ok(new PostIdDto(postId));
     }
 
     @GetMapping("")
@@ -34,9 +34,9 @@ public class PostController {
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<UpdatePostDto> updatePost(@PathVariable("postId") Long postId, @RequestBody UpdatePostRequestDto updatePostRequestDto) {
-        UpdatePostDto updatePostDto = postService.updateOnePost(postId, updatePostRequestDto);
-        return ResponseEntity.ok(updatePostDto);
+    public ResponseEntity<PostIdDto> updatePost(@PathVariable("postId") Long postId, @RequestBody UpdatePostRequestDto updatePostRequestDto) {
+        PostIdDto postIdDto = postService.updateOnePost(postId, updatePostRequestDto);
+        return ResponseEntity.ok(postIdDto);
     }
 
     @DeleteMapping("/{postId}")
