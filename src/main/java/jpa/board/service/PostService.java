@@ -4,7 +4,7 @@ import jpa.board.domain.Member;
 import jpa.board.domain.Post;
 import jpa.board.dto.CreatePostRequest;
 import jpa.board.dto.PostResponseDto;
-import jpa.board.dto.UpdatePostDto;
+import jpa.board.dto.PostIdDto;
 import jpa.board.dto.UpdatePostRequestDto;
 import jpa.board.repository.MemberRepository;
 import jpa.board.repository.PostRepository;
@@ -51,11 +51,11 @@ public class PostService {
     }
 
     @Transactional
-    public UpdatePostDto updateOnePost(Long postId, UpdatePostRequestDto updatePostRequestDto) {
+    public PostIdDto updateOnePost(Long postId, UpdatePostRequestDto updatePostRequestDto) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("No Exist Post"));
         Long updatePostId = post.updatePost(updatePostRequestDto.getTitle(), updatePostRequestDto.getContent());
-        return new UpdatePostDto(updatePostId);
+        return new PostIdDto(updatePostId);
     }
 
     public void deletePostById(Long postId) {
