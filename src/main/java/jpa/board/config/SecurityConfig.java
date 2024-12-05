@@ -25,7 +25,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.httpBasic(AbstractHttpConfigurer::disable)
             .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .sessionManagement(sessionManagement
+                    -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .formLogin(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth
                     -> auth.requestMatchers("/h2-console/**", "/members/**").permitAll()
                     .requestMatchers("/posts/**").hasAuthority("USER")
