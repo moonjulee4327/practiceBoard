@@ -99,7 +99,7 @@ public class JwtTokenProvider {
             throw new RuntimeException("No Authentication");
         }
         Collection<? extends GrantedAuthority> authorities = Arrays.stream(claims.get("role").toString().split(","))
-                .map(SimpleGrantedAuthority::new)
+                .map(role -> new SimpleGrantedAuthority(RoleType.valueOf(role).name()))
                 .collect(Collectors.toList());
         UserDetails principal = new User(claims.getSubject(), "", authorities);
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
