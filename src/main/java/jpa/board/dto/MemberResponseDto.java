@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class MemberResponseDto {
-    private Long no;
+    private Long id;
 }

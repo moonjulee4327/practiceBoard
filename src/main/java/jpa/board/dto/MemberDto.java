@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 @Data
 @AllArgsConstructor
 public class MemberDto {
-    private Long no;
+    private Long id;
 
     private String name;
 
