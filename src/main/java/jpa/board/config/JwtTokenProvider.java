@@ -6,7 +6,7 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.HttpServletRequest;
 import jpa.board.domain.RoleType;
-import jpa.board.service.CustomUserDetailsService;
+import jpa.board.dto.JwtTokenResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,7 +15,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -32,35 +31,47 @@ public class JwtTokenProvider {
     private final long expireTime;
     private final String tokenHeader;
     private final String tokenHeaderPrefix;
-    private final UserDetailsService userDetailsService;
+    private final String authoritiesKey;
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secretKey,
             @Value("${jwt.expire-time}") long expireTime,
             @Value("${jwt.token-header}") String tokenHeader,
             @Value("${jwt.token-header-prefix}") String tokenHeaderPrefix,
-            CustomUserDetailsService userDetailsService
+            @Value("${jwt.token-authorities-key}") String authoritiesKey
     ) {
-        this.userDetailsService = userDetailsService;
         byte[] bytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(bytes);
         this.expireTime = expireTime;
         this.tokenHeader = tokenHeader;
         this.tokenHeaderPrefix = tokenHeaderPrefix;
+        this.authoritiesKey = authoritiesKey;
     }
 
-    public String generateToken(Long memberId, RoleType role) {
-        Claims claims = Jwts.claims().setSubject(String.valueOf(memberId));
-        claims.put("memberId", memberId);
-        claims.put("role", role);
+    public JwtTokenResponse generateToken(Authentication authentication) {
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
         ZonedDateTime now = ZonedDateTime.now();
         ZonedDateTime tokenExpireTime = now.plusSeconds(expireTime);
-        return Jwts.builder()
-                .setClaims(claims)
+        String accessToken =  Jwts.builder()
+                .setSubject(authentication.getName())
+                .claim(authoritiesKey, authorities)
                 .setIssuedAt(Date.from(now.toInstant()))
                 .setExpiration(Date.from(tokenExpireTime.toInstant()))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+
+        String refreshToken = Jwts.builder()
+                .signWith(key, SignatureAlgorithm.ES256)
+                .compact();
+
+        return JwtTokenResponse.builder()
+                .grantType(tokenHeaderPrefix)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 
     public String resolveToken(HttpServletRequest request) {
