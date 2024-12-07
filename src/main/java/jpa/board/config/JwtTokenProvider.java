@@ -28,21 +28,24 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
     private final Key key;
-    private final long expireTime;
+    private final long accessTokenExpireTime;
+    private final long refreshTokenExpireTime;
     private final String tokenHeader;
     private final String tokenHeaderPrefix;
     private final String authoritiesKey;
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secretKey,
-            @Value("${jwt.expire-time}") long expireTime,
+            @Value("${jwt.access-token-expire-time}") long accessTokenExpireTime,
+            @Value("${jwt.refresh-token-expire-time}") long refreshTokenExpireTime,
             @Value("${jwt.token-header}") String tokenHeader,
             @Value("${jwt.token-header-prefix}") String tokenHeaderPrefix,
             @Value("${jwt.token-authorities-key}") String authoritiesKey
     ) {
         byte[] bytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(bytes);
-        this.expireTime = expireTime;
+        this.accessTokenExpireTime = accessTokenExpireTime;
+        this.refreshTokenExpireTime = refreshTokenExpireTime;
         this.tokenHeader = tokenHeader;
         this.tokenHeaderPrefix = tokenHeaderPrefix;
         this.authoritiesKey = authoritiesKey;
@@ -54,7 +57,7 @@ public class JwtTokenProvider {
                 .collect(Collectors.joining(","));
 
         ZonedDateTime now = ZonedDateTime.now();
-        ZonedDateTime tokenExpireTime = now.plusSeconds(expireTime);
+        ZonedDateTime tokenExpireTime = now.plusSeconds(accessTokenExpireTime);
         String accessToken =  Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(authoritiesKey, authorities)
@@ -64,7 +67,8 @@ public class JwtTokenProvider {
                 .compact();
 
         String refreshToken = Jwts.builder()
-                .signWith(key, SignatureAlgorithm.ES256)
+                .setExpiration(Date.from(now.plusSeconds(refreshTokenExpireTime).toInstant()))
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
         return JwtTokenResponse.builder()
@@ -106,10 +110,11 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String accessToken) {
         Claims claims = parseClaims(accessToken);
 
-        if (claims.get("role") == null) {
+        if (claims.get(authoritiesKey) == null) {
             throw new RuntimeException("No Authentication");
         }
-        Collection<? extends GrantedAuthority> authorities = Arrays.stream(claims.get("role").toString().split(","))
+        Collection<? extends GrantedAuthority> authorities
+                = Arrays.stream(claims.get("role").toString().split(","))
                 .map(role -> new SimpleGrantedAuthority(RoleType.valueOf(role).name()))
                 .collect(Collectors.toList());
         UserDetails principal = new User(claims.getSubject(), "", authorities);
