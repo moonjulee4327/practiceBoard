@@ -165,7 +165,7 @@ public class MemberServiceTest {
         return Member.builder()
                 .id(1L)
                 .name("홍길동")
-                .email("hong@board.com")
+                .email("mj1234@kakao.com")
                 .password(passwordEncoder.encode("1234"))
                 .nickname("길동")
                 .roleType(RoleType.USER)

@@ -10,6 +10,9 @@ import jpa.board.dto.SignInDto;
 import jpa.board.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +30,8 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     private final JwtTokenProvider jwtTokenProvider;
+
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     @Value("${jwt.token-header-prefix}")
     private String tokenHeaderPrefix;
@@ -83,12 +88,13 @@ public class MemberService {
     }
 
     public JwtTokenResponse signIn(SignInDto signInDto) {
-        Member loginMember = memberRepository.findById(signInDto.getMemberId())
-                .orElseThrow(() -> new IllegalStateException("No Exist Member"));
-        String accessToken = jwtTokenProvider.generateToken(loginMember.getId(), loginMember.getRoleType());
-        return JwtTokenResponse.builder()
-                .grantType(tokenHeaderPrefix)
-                .accessToken(accessToken)
-                .build();
+        UsernamePasswordAuthenticationToken authenticationToken
+                = new UsernamePasswordAuthenticationToken(signInDto.getEmail(), signInDto.getPassword());
+
+        Authentication authenticate
+                = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+
+        JwtTokenResponse jwtTokenResponse = jwtTokenProvider.generateToken(authenticate);
+        return jwtTokenResponse;
     }
 }
