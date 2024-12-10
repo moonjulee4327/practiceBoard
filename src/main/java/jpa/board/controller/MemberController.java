@@ -1,5 +1,6 @@
 package jpa.board.controller;
 
+import jakarta.validation.Valid;
 import jpa.board.dto.*;
 import jpa.board.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("")
-    public ResponseEntity<MemberResponseDto> createMember(@RequestBody CreateMemberDto createMemberDto) {
+    public ResponseEntity<MemberResponseDto> createMember(@RequestBody @Valid CreateMemberDto createMemberDto) {
         Long saveMemberNo = memberService.saveMember(createMemberDto);
         return ResponseEntity.ok(new MemberResponseDto(saveMemberNo));
     }
