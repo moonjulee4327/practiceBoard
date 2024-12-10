@@ -23,6 +23,7 @@ import java.util.Collections;
 public class Member implements UserDetails {
     @Id
     @GeneratedValue
+    @Column(name = "MEMBER_ID")
     private Long id;
 
     private String email;
