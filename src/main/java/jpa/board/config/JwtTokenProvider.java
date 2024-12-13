@@ -5,8 +5,10 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.HttpServletRequest;
+import jpa.board.domain.RefreshToken;
 import jpa.board.domain.RoleType;
 import jpa.board.dto.JwtTokenResponse;
+import jpa.board.repository.RefreshTokenRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,6 +35,7 @@ public class JwtTokenProvider {
     private final String tokenHeader;
     private final String tokenHeaderPrefix;
     private final String authoritiesKey;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secretKey,
@@ -40,7 +43,8 @@ public class JwtTokenProvider {
             @Value("${jwt.refresh-token-expire-time}") long refreshTokenExpireTime,
             @Value("${jwt.token-header}") String tokenHeader,
             @Value("${jwt.token-header-prefix}") String tokenHeaderPrefix,
-            @Value("${jwt.token-authorities-key}") String authoritiesKey
+            @Value("${jwt.token-authorities-key}") String authoritiesKey,
+            RefreshTokenRepository refreshTokenRepository
     ) {
         byte[] bytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(bytes);
@@ -49,6 +53,7 @@ public class JwtTokenProvider {
         this.tokenHeader = tokenHeader;
         this.tokenHeaderPrefix = tokenHeaderPrefix;
         this.authoritiesKey = authoritiesKey;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     public JwtTokenResponse generateToken(Authentication authentication) {
@@ -70,6 +75,12 @@ public class JwtTokenProvider {
                 .setExpiration(Date.from(now.plusSeconds(refreshTokenExpireTime).toInstant()))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+
+        refreshTokenRepository.save(RefreshToken.builder()
+                                        .userEmail(authentication.getName())
+                                        .token(refreshToken)
+                                        .expiration(refreshTokenExpireTime)
+                                        .build());
 
         return JwtTokenResponse.builder()
                 .grantType(tokenHeaderPrefix)
