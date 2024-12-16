@@ -72,6 +72,7 @@ public class JwtTokenProvider {
                 .compact();
 
         String refreshToken = Jwts.builder()
+                .setIssuedAt(Date.from(now.toInstant()))
                 .setExpiration(Date.from(now.plusSeconds(refreshTokenExpireTime).toInstant()))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -110,6 +111,7 @@ public class JwtTokenProvider {
             log.info("Invalid JWT Token", e);
         }catch (ExpiredJwtException e) {
             log.info("Expired JWT Token", e);
+            throw e;
         }catch (UnsupportedJwtException e) {
             log.info("Unsupported JWT Token", e);
         }catch (IllegalArgumentException e) {
