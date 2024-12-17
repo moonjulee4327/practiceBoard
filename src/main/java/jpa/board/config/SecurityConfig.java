@@ -3,6 +3,7 @@ package jpa.board.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
@@ -16,6 +17,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
@@ -29,13 +32,17 @@ public class SecurityConfig {
                     -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .formLogin(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth
-                    -> auth.requestMatchers("/h2-console/**", "/members/**").permitAll()
-                    .requestMatchers("/posts/**").hasAuthority("USER")
+                    -> auth.requestMatchers("/h2-console/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/members/**").permitAll()
+                    .requestMatchers("/posts/**").hasAnyAuthority("USER", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/members/").hasAuthority("ADMIN")
                     .anyRequest().authenticated()
             )
             .headers(headersConfigurer
                     -> headersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling((exceptionHandling)
+                    -> exceptionHandling.authenticationEntryPoint(customAuthenticationEntryPoint));
         return http.build();
     }
 }
