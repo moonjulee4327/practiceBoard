@@ -1,23 +1,22 @@
 package jpa.board.service;
 
+import io.jsonwebtoken.JwtException;
 import jpa.board.config.JwtTokenProvider;
 import jpa.board.domain.Member;
 import jpa.board.domain.RoleType;
-import jpa.board.dto.CreateMemberDto;
-import jpa.board.dto.JwtTokenResponse;
-import jpa.board.dto.MemberDto;
-import jpa.board.dto.SignInDto;
+import jpa.board.dto.*;
 import jpa.board.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,9 +31,6 @@ public class MemberService {
     private final JwtTokenProvider jwtTokenProvider;
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-
-    @Value("${jwt.token-header-prefix}")
-    private String tokenHeaderPrefix;
 
     public Long saveMember(CreateMemberDto createMemberDto) {
         Member member = Member.builder()
@@ -73,7 +69,6 @@ public class MemberService {
                 .orElseThrow(() -> new IllegalStateException("No Exist Member"));
     }
 
-    @Transactional
     public Long updateNickname(Long memberNo, String updateNickname) {
         Member updateMember = memberRepository.findById(memberNo)
                                                     .orElseThrow(() -> new IllegalArgumentException("No Exist Member"));
@@ -95,6 +90,20 @@ public class MemberService {
                 = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
         JwtTokenResponse jwtTokenResponse = jwtTokenProvider.generateToken(authenticate);
+        return jwtTokenResponse;
+    }
+
+    public JwtTokenResponse reissue(JwtTokenRequest jwtTokenRequest) {
+        String memberEmail = jwtTokenProvider.getMemberEmail(jwtTokenRequest.getRefreshToken());
+
+        if (!jwtTokenProvider.validateRefreshToken(memberEmail, jwtTokenRequest.getRefreshToken())) {
+            throw new JwtException("Not Valid Refresh token");
+        }
+
+        List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("USER"));
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(memberEmail, null, authorities);
+        JwtTokenResponse jwtTokenResponse = jwtTokenProvider.generateToken(authentication);
         return jwtTokenResponse;
     }
 }

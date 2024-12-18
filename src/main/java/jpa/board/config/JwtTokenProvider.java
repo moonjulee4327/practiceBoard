@@ -4,6 +4,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
+import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jpa.board.domain.RefreshToken;
 import jpa.board.domain.RoleType;
@@ -72,6 +73,7 @@ public class JwtTokenProvider {
                 .compact();
 
         String refreshToken = Jwts.builder()
+                .setSubject(authentication.getName())
                 .setIssuedAt(Date.from(now.toInstant()))
                 .setExpiration(Date.from(now.plusSeconds(refreshTokenExpireTime).toInstant()))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -98,6 +100,35 @@ public class JwtTokenProvider {
             log.info("header is not valid " + request.getHeader(tokenHeader));
         }
         return token;
+    }
+
+    public String getMemberEmail(String refreshToken) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(refreshToken)
+                .getBody()
+                .getSubject();
+    }
+
+    public boolean validateRefreshToken(String email, String refreshToken) {
+        String storedRefreshToken = refreshTokenRepository.findByUserEmail(email).getToken();
+
+        if (StringUtils.isNotBlank(storedRefreshToken) && !storedRefreshToken.equals(refreshToken)) {
+            log.info("Stored Refresh Token Not Match");
+            return false;
+        }
+
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(refreshToken);
+            return true;
+        }catch (ExpiredJwtException e) {
+            log.info("Expired JWT Refresh Token", e);
+        }
+        return false;
     }
 
     public boolean validateToken(String token) {
