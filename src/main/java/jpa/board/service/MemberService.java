@@ -97,10 +97,11 @@ public class MemberService {
         String memberEmail = jwtTokenProvider.getMemberEmail(jwtTokenRequest.getRefreshToken());
 
         if (!jwtTokenProvider.validateRefreshToken(memberEmail, jwtTokenRequest.getRefreshToken())) {
-            throw new JwtException("Not Valid Refresh token");
+            jwtTokenProvider.invalidRefreshToken(memberEmail);
+            throw new JwtException("Invalid Refresh token");
         }
 
-        List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("USER"));
+        List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(RoleType.USER.name()));
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(memberEmail, null, authorities);
         JwtTokenResponse jwtTokenResponse = jwtTokenProvider.generateToken(authentication);

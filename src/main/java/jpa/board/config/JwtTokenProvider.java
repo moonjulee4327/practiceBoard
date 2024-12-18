@@ -12,6 +12,7 @@ import jpa.board.dto.JwtTokenResponse;
 import jpa.board.repository.RefreshTokenRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,7 +37,9 @@ public class JwtTokenProvider {
     private final String tokenHeader;
     private final String tokenHeaderPrefix;
     private final String authoritiesKey;
+    private final String redisHash;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secretKey,
@@ -45,7 +48,9 @@ public class JwtTokenProvider {
             @Value("${jwt.token-header}") String tokenHeader,
             @Value("${jwt.token-header-prefix}") String tokenHeaderPrefix,
             @Value("${jwt.token-authorities-key}") String authoritiesKey,
-            RefreshTokenRepository refreshTokenRepository
+            @Value("${spring.redis.refresh_token_redis_hash}") String redisHash,
+            RefreshTokenRepository refreshTokenRepository,
+            RedisTemplate<String, Object> redisTemplate
     ) {
         byte[] bytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(bytes);
@@ -54,7 +59,9 @@ public class JwtTokenProvider {
         this.tokenHeader = tokenHeader;
         this.tokenHeaderPrefix = tokenHeaderPrefix;
         this.authoritiesKey = authoritiesKey;
+        this.redisHash = redisHash;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.redisTemplate = redisTemplate;
     }
 
     public JwtTokenResponse generateToken(Authentication authentication) {
@@ -174,5 +181,10 @@ public class JwtTokenProvider {
         }catch (ExpiredJwtException e) {
             return e.getClaims();
         }
+    }
+
+    public void invalidRefreshToken(String memberEmail) {
+        String key = redisHash + ":" + memberEmail;
+        redisTemplate.delete(key);
     }
 }
