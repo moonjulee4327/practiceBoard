@@ -52,4 +52,10 @@ public class MemberController {
         JwtTokenResponse jwtTokenResponse = memberService.signIn(signInDto);
         return ResponseEntity.ok(jwtTokenResponse);
     }
+
+    @PostMapping("/reissue")
+    public ResponseEntity<JwtTokenResponse> reissue(@RequestBody JwtTokenRequest jwtTokenRequest) {
+        JwtTokenResponse jwtTokenResponse = memberService.reissue(jwtTokenRequest);
+        return ResponseEntity.ok(jwtTokenResponse);
+    }
 }
