@@ -185,6 +185,8 @@ public class JwtTokenProvider {
 
     public void invalidRefreshToken(String memberEmail) {
         String key = redisHash + memberEmail;
-        redisTemplate.delete(key);
+        if (redisTemplate.hasKey(key)){
+            redisTemplate.delete(key);
+        }
     }
 }
