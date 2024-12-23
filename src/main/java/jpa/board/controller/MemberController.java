@@ -58,4 +58,10 @@ public class MemberController {
         JwtTokenResponse jwtTokenResponse = memberService.reissue(jwtTokenRequest);
         return ResponseEntity.ok(jwtTokenResponse);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestBody JwtTokenRequest jwtTokenRequest) {
+        memberService.logout(jwtTokenRequest);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

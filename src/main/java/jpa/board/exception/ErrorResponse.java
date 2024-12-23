@@ -13,6 +13,10 @@ public class ErrorResponse {
     private String code;
     private List<FieldError> fieldErrors;
 
+    public static ErrorResponse of(String message, String code) {
+        return new ErrorResponse(message, code, null);
+    }
+
     public static ErrorResponse of(String message, String code, BindingResult bindingResult) {
         List<FieldError> fieldErrors = bindingResult.getFieldErrors().stream()
                 .map(fieldError -> new FieldError(fieldError.getField()

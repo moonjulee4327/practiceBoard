@@ -107,4 +107,9 @@ public class MemberService {
         JwtTokenResponse jwtTokenResponse = jwtTokenProvider.generateToken(authentication);
         return jwtTokenResponse;
     }
+
+    public void logout(JwtTokenRequest jwtTokenRequest) {
+        String memberEmail = jwtTokenProvider.getMemberEmail(jwtTokenRequest.getRefreshToken());
+        jwtTokenProvider.invalidRefreshToken(memberEmail);
+    }
 }
