@@ -1,18 +1,22 @@
 package jpa.board.domain;
 
 import jakarta.persistence.*;
-import lombok.Builder;
+import lombok.*;
 
 import java.time.ZonedDateTime;
 
 @Builder
 @Entity
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment {
     @Id
     @GeneratedValue
     private Long id;
 
-    private String content;
+    @Column(length = 6000)
+    private String comment;
 
     private ZonedDateTime createdDate;
 
