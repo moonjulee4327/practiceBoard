@@ -49,7 +49,7 @@ public class MemberService {
 
     private void validateDuplicateMember(Member member) {
         Member findMembers = memberRepository.findByName(member.getName());
-        if (!findMembers.isEmpty()) {
+        if (findMembers != null) {
             throw new IllegalStateException("Exist Duplicate Member");
         }
     }
