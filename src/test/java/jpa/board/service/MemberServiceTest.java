@@ -51,7 +51,7 @@ public class MemberServiceTest {
         Member member = createMember();
         CreateMemberDto createMemberDto = new CreateMemberDto(member.getEmail(), member.getName(), member.getPassword(), member.getNickname());
 
-        when(memberRepository.findByName(member.getName())).thenReturn(List.of(member));
+        when(memberRepository.findByName(member.getName())).thenReturn(member);
 
         assertThrows(IllegalStateException.class, () -> memberService.saveMember(createMemberDto));
         verify(memberRepository, times(0)).save(member);
