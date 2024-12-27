@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import jpa.board.dto.PostResponseDto;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -21,8 +24,12 @@ public class Post {
     private String content;
 
     @ManyToOne
-    @JoinColumn(name = "MEMBER_NO")
+    @JoinColumn(name = "MEMBER_ID")
     private Member member;
+
+    @OneToMany(mappedBy = "postId", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OrderBy("id asc")
+    private List<Comment> comments = new ArrayList<>();
 
     public PostResponseDto toPostDto() {
         return new PostResponseDto(id, title, content, member.toMemberDto());
