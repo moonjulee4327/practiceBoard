@@ -25,4 +25,11 @@ public class RestExceptionHandlingAdvice {
         log.error("handleBadCredentialsException", exception);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorResponse.of("Invalid email or password", "AUTHENTICATION_FAILED"));
     }
+
+    @ExceptionHandler(PostNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePostNotFoundException(PostNotFoundException exception) {
+        log.error("handlePostNotFoundException", exception);
+        String message = "Post ID : " + exception.getPostId() + " Not Found";
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.of(message, "POST_NOT_FOUND"));
+    }
 }

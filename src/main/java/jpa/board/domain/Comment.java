@@ -26,6 +26,6 @@ public class Comment {
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
-    @Column(name = "POST_ID")
+    @Column(name = "POST_ID", nullable = false)
     private Long postId;
 }

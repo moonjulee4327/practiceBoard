@@ -3,6 +3,7 @@ package jpa.board.service;
 import jpa.board.domain.Comment;
 import jpa.board.domain.Member;
 import jpa.board.dto.CommentDto;
+import jpa.board.exception.PostNotFoundException;
 import jpa.board.repository.CommentRepository;
 import jpa.board.repository.MemberRepository;
 import jpa.board.repository.PostRepository;
@@ -22,6 +23,7 @@ public class CommentService {
 
     public Long addCommentToPost(Long postId, CommentDto.Request commentDto) {
         Member member = memberRepository.findByName(commentDto.getMember().getName());
+        postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post ID : " + postId + " Not Found", postId));
         Comment comment = commentDto.toEntity(member, postId);
         Comment savedComment = commentRepository.save(comment);
 
