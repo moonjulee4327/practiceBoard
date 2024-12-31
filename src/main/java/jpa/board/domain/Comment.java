@@ -31,7 +31,9 @@ public class Comment {
     @JoinColumn(name = "post_id")
     private Post post;
 
+    private String authorName;
+
     public CommentDto.Response toCommentDto() {
-        return new CommentDto.Response(id, member.getNickname(), comment, createdDate);
+        return new CommentDto.Response(id, authorName, comment, createdDate);
     }
 }

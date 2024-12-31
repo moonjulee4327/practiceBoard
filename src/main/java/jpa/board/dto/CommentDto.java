@@ -27,6 +27,7 @@ public class CommentDto {
                     .modifiedDate(null)
                     .member(member)
                     .post(post)
+                    .authorName(member.getNickname())
                     .build();
         }
     }
@@ -42,7 +43,7 @@ public class CommentDto {
 
         public Response(Comment comment) {
             this.id = comment.getId();
-            this.author = comment.getMember().getNickname();
+            this.author = comment.getAuthorName();
             this.comment = comment.getComment();
             this.createdDate = comment.getCreatedDate();
         }
