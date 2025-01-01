@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,14 +27,14 @@ public class CommentService {
     public Long addCommentToPost(Long postId, CommentDto.Request commentDto) {
         Member member = memberRepository.findByName(commentDto.getMember().getName());
         postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post ID : " + postId + " Not Found", postId));
-        Comment comment = commentDto.toEntity(member, commentDto.getPost());
+        Comment comment = commentDto.toEntity(member, postId);
         Comment savedComment = commentRepository.save(comment);
 
         return savedComment.getId();
     }
 
-    public List<CommentDto.Response> findPostComment(Long postId) {
-        List<Comment> commentList = commentRepository.findByPost_Id(postId);
+    public List<CommentDto.Response> findCommentToPost(Long postId) {
+        List<Comment> commentList = commentRepository.findByPostId(postId);
         return commentList.stream()
                 .map(Comment::toCommentDto)
                 .collect(Collectors.toList());

@@ -21,7 +21,12 @@ public class CommentController {
 
     @GetMapping("{postId}/comments")
     public ResponseEntity<List<CommentDto.Response>> getComments(@PathVariable(name = "postId") Long postId) {
-        List<CommentDto.Response> commentList = commentService.findPostComment(postId);
+        List<CommentDto.Response> commentList = commentService.findCommentToPost(postId);
         return ResponseEntity.ok(commentList);
     }
+
+//    @PatchMapping("{postId}/comments")
+//    public ResponseEntity<CommentDto.Response> updateComment(@PathVariable(name = "postId") Long postId, @RequestBody CommentDto.Request request) {
+//        ResponseEntity.ok(commentService.updateCommentToPost(postId, request));
+//    }
 }

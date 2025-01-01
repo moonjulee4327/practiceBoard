@@ -27,9 +27,8 @@ public class Comment {
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
-    @ManyToOne
-    @JoinColumn(name = "post_id")
-    private Post post;
+    @Column(name = "POST_ID")
+    private Long postId;
 
     private String authorName;
 

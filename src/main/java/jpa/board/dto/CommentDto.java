@@ -18,15 +18,15 @@ public class CommentDto {
     public static class Request {
         private String comment;
         private Member member;
-        private Post post;
+//        private Post post;
 
-        public Comment toEntity(Member member, Post post) {
+        public Comment toEntity(Member member, Long postId) {
             return Comment.builder()
                     .comment(comment)
                     .createdDate(ZonedDateTime.now())
                     .modifiedDate(null)
                     .member(member)
-                    .post(post)
+                    .postId(postId)
                     .authorName(member.getNickname())
                     .build();
         }
