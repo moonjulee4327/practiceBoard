@@ -3,6 +3,7 @@ package jpa.board.service;
 import jpa.board.domain.Comment;
 import jpa.board.domain.Member;
 import jpa.board.dto.CommentDto;
+import jpa.board.exception.CommentNotFoundException;
 import jpa.board.exception.PostNotFoundException;
 import jpa.board.repository.CommentRepository;
 import jpa.board.repository.MemberRepository;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,5 +40,12 @@ public class CommentService {
         return commentList.stream()
                 .map(Comment::toCommentDto)
                 .collect(Collectors.toList());
+    }
+
+    public CommentDto.Response updateCommentToPost(Long postId, CommentDto.Request request) {
+        postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post ID : " + postId + " Not Found", postId));
+        Comment savedComment = commentRepository.findById(request.getId()).orElseThrow(() -> new CommentNotFoundException("Comment ID : " + request.getId() + " Not Found", request.getId()));
+        Long updatedCommentId = savedComment.updateComment(request.getComment());
+        return new CommentDto.Response(updatedCommentId, savedComment.getAuthorName(), savedComment.getComment(), ZonedDateTime.now());
     }
 }

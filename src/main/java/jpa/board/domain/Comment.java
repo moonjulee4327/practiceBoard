@@ -35,4 +35,9 @@ public class Comment {
     public CommentDto.Response toCommentDto() {
         return new CommentDto.Response(id, authorName, comment, createdDate);
     }
+
+    public Long updateComment(String updateComment) {
+        this.comment = updateComment;
+        return id;
+    }
 }

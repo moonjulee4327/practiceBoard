@@ -16,6 +16,7 @@ public class CommentDto {
     @NoArgsConstructor
     @Builder
     public static class Request {
+        private Long id;
         private String comment;
         private Member member;
 //        private Post post;

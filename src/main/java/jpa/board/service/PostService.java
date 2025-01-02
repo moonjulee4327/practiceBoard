@@ -6,6 +6,7 @@ import jpa.board.dto.CreatePostRequest;
 import jpa.board.dto.PostResponseDto;
 import jpa.board.dto.PostIdDto;
 import jpa.board.dto.UpdatePostRequestDto;
+import jpa.board.exception.PostNotFoundException;
 import jpa.board.repository.MemberRepository;
 import jpa.board.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +54,7 @@ public class PostService {
     @Transactional
     public PostIdDto updateOnePost(Long postId, UpdatePostRequestDto updatePostRequestDto) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("No Exist Post"));
+                .orElseThrow(() -> new PostNotFoundException("Post ID : " + postId + " Not Found", postId));
         Long updatePostId = post.updatePost(updatePostRequestDto.getTitle(), updatePostRequestDto.getContent());
         return new PostIdDto(updatePostId);
     }
