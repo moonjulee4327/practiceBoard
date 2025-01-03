@@ -40,4 +40,8 @@ public class Comment {
         this.comment = updateComment;
         return id;
     }
+
+    public boolean isAuthor(String email) {
+        return member.getEmail().equals(email);
+    }
 }

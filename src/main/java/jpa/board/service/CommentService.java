@@ -10,6 +10,9 @@ import jpa.board.repository.MemberRepository;
 import jpa.board.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +31,7 @@ public class CommentService {
 
     public Long addCommentToPost(Long postId, CommentDto.Request commentDto) {
         Member member = memberRepository.findByName(commentDto.getMember().getName());
-        postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post ID : " + postId + " Not Found", postId));
+        validatePostExists(postId);
         Comment comment = commentDto.toEntity(member, postId);
         Comment savedComment = commentRepository.save(comment);
 
@@ -43,9 +46,32 @@ public class CommentService {
     }
 
     public CommentDto.Response updateCommentToPost(Long postId, CommentDto.Request request) {
-        postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post ID : " + postId + " Not Found", postId));
-        Comment savedComment = commentRepository.findById(request.getId()).orElseThrow(() -> new CommentNotFoundException("Comment ID : " + request.getId() + " Not Found", request.getId()));
-        Long updatedCommentId = savedComment.updateComment(request.getComment());
-        return new CommentDto.Response(updatedCommentId, savedComment.getAuthorName(), savedComment.getComment(), ZonedDateTime.now());
+        validatePostExists(postId);
+        Comment comment = findCommentById(request.getId());
+        validateCommentAuthor(comment);
+        Long updatedCommentId = comment.updateComment(request.getComment());
+        return new CommentDto.Response(updatedCommentId, comment.getAuthorName(), comment.getComment(), ZonedDateTime.now());
+    }
+
+    private void validatePostExists(Long postId) {
+        if (!postRepository.existsById(postId)) {
+            throw new PostNotFoundException("Post ID : " + postId + " Not Found", postId);
+        }
+    }
+
+    private Comment findCommentById(Long commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("Comment ID : " + commentId + " Not Found", commentId));
+    }
+
+    private void validateCommentAuthor(Comment comment) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AccessDeniedException("User is not authenticated");
+        }
+        String currentUserEmail = authentication.getName();
+        if (!comment.isAuthor(currentUserEmail)) {
+            throw new AccessDeniedException("Not permission to update this comment");
+        }
     }
 }
