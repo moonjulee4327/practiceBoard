@@ -16,9 +16,10 @@ public class CommentDto {
     @NoArgsConstructor
     @Builder
     public static class Request {
+        private Long id;
         private String comment;
         private Member member;
-        private Post post;
+//        private Post post;
 
         public Comment toEntity(Member member, Long postId) {
             return Comment.builder()
@@ -27,7 +28,25 @@ public class CommentDto {
                     .modifiedDate(null)
                     .member(member)
                     .postId(postId)
+                    .authorName(member.getNickname())
                     .build();
+        }
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Response {
+        private Long id;
+        private String author;
+        private String comment;
+        private ZonedDateTime createdDate;
+
+        public Response(Comment comment) {
+            this.id = comment.getId();
+            this.author = comment.getAuthorName();
+            this.comment = comment.getComment();
+            this.createdDate = comment.getCreatedDate();
         }
     }
 }

@@ -1,6 +1,7 @@
 package jpa.board.domain;
 
 import jakarta.persistence.*;
+import jpa.board.dto.CommentDto;
 import lombok.*;
 
 import java.time.ZonedDateTime;
@@ -26,6 +27,21 @@ public class Comment {
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
-    @Column(name = "POST_ID", nullable = false)
+    @Column(name = "POST_ID")
     private Long postId;
+
+    private String authorName;
+
+    public CommentDto.Response toCommentDto() {
+        return new CommentDto.Response(id, authorName, comment, createdDate);
+    }
+
+    public Long updateComment(String updateComment) {
+        this.comment = updateComment;
+        return id;
+    }
+
+    public boolean isAuthor(String email) {
+        return member.getEmail().equals(email);
+    }
 }

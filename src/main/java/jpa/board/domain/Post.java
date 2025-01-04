@@ -27,7 +27,7 @@ public class Post {
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
-    @OneToMany(mappedBy = "postId", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToMany
     @OrderBy("id asc")
     private List<Comment> comments = new ArrayList<>();
 
