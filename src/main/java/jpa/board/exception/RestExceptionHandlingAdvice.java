@@ -32,4 +32,11 @@ public class RestExceptionHandlingAdvice {
         String message = "Post ID : " + exception.getPostId() + " Not Found";
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.of(message, "POST_NOT_FOUND"));
     }
+
+    @ExceptionHandler(CommentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCommentNotFoundException(CommentNotFoundException exception) {
+        log.error("handleCommentNotFoundException", exception);
+        String message = "Comment ID : " + exception.getCommentId() + " Not Found";
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.of(message, "COMMENT_NOT_FOUND"));
+    }
 }
