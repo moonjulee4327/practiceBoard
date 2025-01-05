@@ -4,6 +4,7 @@ import jpa.board.domain.Comment;
 import jpa.board.domain.Member;
 import jpa.board.dto.CommentDto;
 import jpa.board.exception.CommentNotFoundException;
+import jpa.board.exception.CommentPermissionException;
 import jpa.board.exception.PostNotFoundException;
 import jpa.board.repository.CommentRepository;
 import jpa.board.repository.MemberRepository;
@@ -65,13 +66,17 @@ public class CommentService {
     }
 
     private void validateCommentAuthor(Comment comment) {
+        String currentMemberEmail = getCurrentMemberEmail();
+        if (!comment.isAuthor(currentMemberEmail)) {
+            throw new CommentPermissionException("Comment ID : " + comment.getId() + ", Email : " + currentMemberEmail + " Not  Permission to Update this Comment", comment.getId());
+        }
+    }
+
+    private String getCurrentMemberEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new AccessDeniedException("User is not authenticated");
         }
-        String currentUserEmail = authentication.getName();
-        if (!comment.isAuthor(currentUserEmail)) {
-            throw new AccessDeniedException("Not permission to update this comment");
-        }
+        return authentication.getName();
     }
 }
