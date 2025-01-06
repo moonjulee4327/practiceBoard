@@ -54,6 +54,15 @@ public class CommentService {
         return new CommentDto.Response(updatedCommentId, comment.getAuthorName(), comment.getComment(), ZonedDateTime.now());
     }
 
+
+    public void deleteCommentById(Long postId, CommentDto.Request request) {
+        Comment storedComment = findCommentById(request.getId());
+        if (!storedComment.getPostId().equals(postId)) {
+            throw new CommentPermissionException("Comment ID : " + request.getId() + " Not Permission to Delete this Comment", request.getId());
+        }
+        commentRepository.deleteById(request.getId());
+    }
+
     private void validatePostExists(Long postId) {
         if (!postRepository.existsById(postId)) {
             throw new PostNotFoundException("Post ID : " + postId + " Not Found", postId);
@@ -68,7 +77,7 @@ public class CommentService {
     private void validateCommentAuthor(Comment comment) {
         String currentMemberEmail = getCurrentMemberEmail();
         if (!comment.isAuthor(currentMemberEmail)) {
-            throw new CommentPermissionException("Comment ID : " + comment.getId() + ", Email : " + currentMemberEmail + " Not  Permission to Update this Comment", comment.getId());
+            throw new CommentPermissionException("Comment ID : " + comment.getId() + ", Email : " + currentMemberEmail + " Not Permission to Update this Comment", comment.getId());
         }
     }
 
