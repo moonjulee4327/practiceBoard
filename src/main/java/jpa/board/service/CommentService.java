@@ -4,6 +4,8 @@ import jpa.board.domain.Comment;
 import jpa.board.domain.Member;
 import jpa.board.dto.CommentDto;
 import jpa.board.exception.CommentNotFoundException;
+import jpa.board.exception.CommentPermissionException;
+import jpa.board.exception.MemberNotFoundException;
 import jpa.board.exception.PostNotFoundException;
 import jpa.board.repository.CommentRepository;
 import jpa.board.repository.MemberRepository;
@@ -30,7 +32,7 @@ public class CommentService {
     private final PostRepository postRepository;
 
     public Long addCommentToPost(Long postId, CommentDto.Request commentDto) {
-        Member member = memberRepository.findByName(commentDto.getMember().getName());
+        Member member = findMemberByName(commentDto.getMember().getName());
         validatePostExists(postId);
         Comment comment = commentDto.toEntity(member, postId);
         Comment savedComment = commentRepository.save(comment);
@@ -53,6 +55,14 @@ public class CommentService {
         return new CommentDto.Response(updatedCommentId, comment.getAuthorName(), comment.getComment(), ZonedDateTime.now());
     }
 
+    public void deleteCommentById(Long postId, CommentDto.Request request) {
+        Comment storedComment = findCommentById(request.getId());
+        if (!storedComment.getPostId().equals(postId)) {
+            throw new CommentPermissionException("Comment ID : " + request.getId() + " Not Permission to Delete this Comment", request.getId());
+        }
+        commentRepository.deleteById(request.getId());
+    }
+
     private void validatePostExists(Long postId) {
         if (!postRepository.existsById(postId)) {
             throw new PostNotFoundException("Post ID : " + postId + " Not Found", postId);
@@ -65,13 +75,25 @@ public class CommentService {
     }
 
     private void validateCommentAuthor(Comment comment) {
+        String currentMemberEmail = getCurrentMemberEmail();
+        if (!comment.isAuthor(currentMemberEmail)) {
+            throw new CommentPermissionException("Comment ID : " + comment.getId() + ", Email : " + currentMemberEmail + " Not Permission to Update this Comment", comment.getId());
+        }
+    }
+
+    private String getCurrentMemberEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new AccessDeniedException("User is not authenticated");
         }
-        String currentUserEmail = authentication.getName();
-        if (!comment.isAuthor(currentUserEmail)) {
-            throw new AccessDeniedException("Not permission to update this comment");
+        return authentication.getName();
+    }
+
+    private Member findMemberByName(String name) {
+        Member member = memberRepository.findByName(name);
+        if (member == null) {
+            throw new MemberNotFoundException("Member Not Found With Name : " + name, name);
         }
+        return member;
     }
 }

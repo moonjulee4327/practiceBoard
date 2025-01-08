@@ -3,6 +3,7 @@ package jpa.board.controller;
 import jpa.board.dto.CommentDto;
 import jpa.board.service.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,5 +29,11 @@ public class CommentController {
     @PatchMapping("{postId}/comments")
     public ResponseEntity<CommentDto.Response> updateComment(@PathVariable(name = "postId") Long postId, @RequestBody CommentDto.Request request) {
         return ResponseEntity.ok(commentService.updateCommentToPost(postId, request));
+    }
+
+    @DeleteMapping("{postId}/comments")
+    public ResponseEntity<Void> deleteComment(@PathVariable(name = "postId") Long postId, @RequestBody CommentDto.Request request) {
+        commentService.deleteCommentById(postId, request);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
