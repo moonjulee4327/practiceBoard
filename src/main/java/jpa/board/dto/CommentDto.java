@@ -18,8 +18,6 @@ public class CommentDto {
     public static class Request {
         private Long id;
         private String comment;
-        private Member member;
-//        private Post post;
 
         public Comment toEntity(Member member, Long postId) {
             return Comment.builder()

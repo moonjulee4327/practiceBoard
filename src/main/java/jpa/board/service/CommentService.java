@@ -31,13 +31,14 @@ public class CommentService {
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
 
-    public Long addCommentToPost(Long postId, CommentDto.Request commentDto) {
-        Member member = findMemberByName(commentDto.getMember().getName());
+    public CommentDto.Response addCommentToPost(Long postId, CommentDto.Request commentDto) {
+        String currentMemberEmail = getCurrentMemberEmail();
+        Member member = findMemberByEmail(currentMemberEmail);
         validatePostExists(postId);
         Comment comment = commentDto.toEntity(member, postId);
         Comment savedComment = commentRepository.save(comment);
-
-        return savedComment.getId();
+        CommentDto.Response response = new CommentDto.Response(savedComment.getId(), savedComment.getAuthorName(), savedComment.getComment(), savedComment.getCreatedDate());
+        return response;
     }
 
     public List<CommentDto.Response> findCommentToPost(Long postId) {
@@ -89,11 +90,9 @@ public class CommentService {
         return authentication.getName();
     }
 
-    private Member findMemberByName(String name) {
-        Member member = memberRepository.findByName(name);
-        if (member == null) {
-            throw new MemberNotFoundException("Member Not Found With Name : " + name, name);
-        }
-        return member;
+    private Member findMemberByEmail(String email) {
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> new MemberNotFoundException("Member Not Found With Email : " + email, email));
     }
+
 }
