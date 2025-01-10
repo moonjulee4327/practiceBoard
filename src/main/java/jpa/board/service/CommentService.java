@@ -57,10 +57,12 @@ public class CommentService {
     }
 
     public void deleteCommentById(Long postId, CommentDto.Request request) {
+        validatePostExists(postId);
         Comment storedComment = findCommentById(request.getId());
         if (!storedComment.getPostId().equals(postId)) {
-            throw new CommentPermissionException("Comment ID : " + request.getId() + " Not Permission to Delete this Comment", request.getId());
+            throw new CommentPermissionException("Post ID : " + postId + " Not Permission to Delete this Comment", request.getId());
         }
+        validateCommentAuthor(storedComment);
         commentRepository.deleteById(request.getId());
     }
 
@@ -94,5 +96,4 @@ public class CommentService {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new MemberNotFoundException("Member Not Found With Email : " + email, email));
     }
-
 }
