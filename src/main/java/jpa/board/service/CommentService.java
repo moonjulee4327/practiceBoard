@@ -37,14 +37,15 @@ public class CommentService {
         validatePostExists(postId);
         Comment comment = commentDto.toEntity(member, postId);
         Comment savedComment = commentRepository.save(comment);
-        CommentDto.Response response = new CommentDto.Response(savedComment.getId(), savedComment.getAuthorName(), savedComment.getComment(), savedComment.getCreatedDate());
+        CommentDto.Response response = new CommentDto.Response(savedComment);
         return response;
     }
 
     public List<CommentDto.Response> findCommentToPost(Long postId) {
+        validatePostExists(postId);
         List<Comment> commentList = commentRepository.findByPostId(postId);
         return commentList.stream()
-                .map(Comment::toCommentDto)
+                .map(CommentDto.Response::new)
                 .collect(Collectors.toList());
     }
 
