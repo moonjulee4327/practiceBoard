@@ -5,6 +5,7 @@ import jpa.board.config.JwtTokenProvider;
 import jpa.board.domain.Member;
 import jpa.board.domain.RoleType;
 import jpa.board.dto.*;
+import jpa.board.exception.MemberNotFoundException;
 import jpa.board.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,6 +32,8 @@ public class MemberService {
     private final JwtTokenProvider jwtTokenProvider;
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+
+    private final SecurityContextService securityContextService;
 
     public Long saveMember(CreateMemberDto createMemberDto) {
         Member member = Member.builder()
@@ -111,5 +114,11 @@ public class MemberService {
     public void logout(JwtTokenRequest jwtTokenRequest) {
         String memberEmail = jwtTokenProvider.getMemberEmail(jwtTokenRequest.getRefreshToken());
         jwtTokenProvider.invalidRefreshToken(memberEmail);
+    }
+
+    public Member findAuthenticatedMember() {
+        String email = securityContextService.getCurrentMemberEmail();
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> new MemberNotFoundException("Member Not Found With Email : " + email, email));
     }
 }

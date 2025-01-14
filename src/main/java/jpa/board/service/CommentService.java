@@ -5,10 +5,8 @@ import jpa.board.domain.Member;
 import jpa.board.domain.Post;
 import jpa.board.dto.CommentDto;
 import jpa.board.exception.CommentPermissionException;
-import jpa.board.exception.MemberNotFoundException;
 import jpa.board.exception.PostNotFoundException;
 import jpa.board.repository.CommentRepository;
-import jpa.board.repository.MemberRepository;
 import jpa.board.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +20,13 @@ import java.util.List;
 @Service
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final MemberRepository memberRepository;
     private final PostRepository postRepository;
+    private final MemberService memberService;
     private final SecurityContextService securityContextService;
 
     @Transactional
     public CommentDto.Response addCommentToPost(Long postId, CommentDto.Request commentDto) {
-        Member member = findAuthenticatedMember();
+        Member member = memberService.findAuthenticatedMember();
         Post post = findPostById(postId);
 
         Comment comment = commentDto.toEntity(member, post.getId());
@@ -78,11 +76,5 @@ public class CommentService {
         if (!comment.isAuthor(currentMemberEmail)) {
             throw new CommentPermissionException("Comment ID : " + comment.getId() + ", Email : " + currentMemberEmail + " Not Permission to Update this Comment.", comment.getId());
         }
-    }
-
-    private Member findAuthenticatedMember() {
-        String email = securityContextService.getCurrentMemberEmail();
-        return memberRepository.findByEmail(email)
-                .orElseThrow(() -> new MemberNotFoundException("Member Not Found With Email : " + email, email));
     }
 }
