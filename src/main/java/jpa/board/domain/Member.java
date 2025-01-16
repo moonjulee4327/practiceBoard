@@ -2,7 +2,7 @@ package jpa.board.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import jpa.board.dto.MemberDto;
+import jpa.board.dto.MemberDto1;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,6 +26,7 @@ public class Member implements UserDetails {
     @Column(name = "MEMBER_ID")
     private Long id;
 
+    @Column(unique = true)
     private String email;
 
     private String name;
@@ -65,8 +66,8 @@ public class Member implements UserDetails {
         return id;
     }
 
-    public MemberDto toMemberDto() {
-        return new MemberDto(id, name, nickname, createdDate);
+    public MemberDto1 toMemberDto() {
+        return new MemberDto1(id, name, nickname, createdDate);
     }
 
     @Override

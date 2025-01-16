@@ -17,20 +17,20 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("")
-    public ResponseEntity<MemberResponseDto> createMember(@RequestBody @Valid CreateMemberDto createMemberDto) {
-        Long saveMemberNo = memberService.saveMember(createMemberDto);
+    public ResponseEntity<MemberResponseDto> createMember(@RequestBody @Valid MemberDto.Request request) {
+        Long saveMemberNo = memberService.saveMember(request);
         return ResponseEntity.ok(new MemberResponseDto(saveMemberNo));
     }
 
     @GetMapping("")
-    public ResponseEntity<Object> getMembers() {
-        List<MemberDto> list = memberService.findAllMembers();
+    public ResponseEntity<List<MemberDto.Response>> getMembers() {
+        List<MemberDto.Response> list = memberService.findAllMembers();
         return ResponseEntity.ok(list);
     }
 
     @GetMapping("/{memberId}")
-    public ResponseEntity<MemberDto> getMember(@PathVariable("memberId") Long memberId) {
-        MemberDto memberDto = memberService.findOneMember(memberId);
+    public ResponseEntity<MemberDto1> getMember(@PathVariable("memberId") Long memberId) {
+        MemberDto1 memberDto = memberService.findOneMember(memberId);
         return ResponseEntity.ok(memberDto);
     }
 
