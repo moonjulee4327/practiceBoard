@@ -17,28 +17,26 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("")
-    public ResponseEntity<MemberResponseDto> createMember(@RequestBody @Valid MemberDto.Request request) {
+    public ResponseEntity<MemberDto.Response> createMember(@RequestBody @Valid MemberDto.Request request) {
         Long saveMemberNo = memberService.saveMember(request);
-        return ResponseEntity.ok(new MemberResponseDto(saveMemberNo));
+        return ResponseEntity.ok(new MemberDto.Response(saveMemberNo));
     }
 
     @GetMapping("")
     public ResponseEntity<List<MemberDto.Response>> getMembers() {
-        List<MemberDto.Response> list = memberService.findAllMembers();
-        return ResponseEntity.ok(list);
+        return ResponseEntity.ok(memberService.findAllMembers());
     }
 
     @GetMapping("/{memberId}")
-    public ResponseEntity<MemberDto1> getMember(@PathVariable("memberId") Long memberId) {
-        MemberDto1 memberDto = memberService.findOneMember(memberId);
-        return ResponseEntity.ok(memberDto);
+    public ResponseEntity<MemberDto.Response> getMember(@PathVariable("memberId") Long memberId) {
+        return ResponseEntity.ok(memberService.findOneMember(memberId));
     }
 
     @PatchMapping("/{memberId}")
-    public ResponseEntity<MemberResponseDto> updateMember(@PathVariable("memberId") Long memberId,
-                                                          @RequestBody UpdateNicknameDto updateNicknameDto) {
-        Long memberNo = memberService.updateNickname(memberId, updateNicknameDto.getNickname());
-        return ResponseEntity.ok(new MemberResponseDto(memberNo));
+    public ResponseEntity<MemberDto.Response> updateMember(@PathVariable("memberId") Long memberId,
+                                                          @RequestBody MemberDto.Request request) {
+        Long memberNo = memberService.updateNickname(memberId, request.getNickname());
+        return ResponseEntity.ok(new MemberDto.Response(memberNo));
     }
 
     @DeleteMapping("/{memberId}")

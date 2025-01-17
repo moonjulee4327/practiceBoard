@@ -58,23 +58,23 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public MemberDto1 findOneMember(Long memberId) {
+    public MemberDto.Response findOneMember(Long memberId) {
         return memberRepository.findById(memberId)
-                .map(member -> new MemberDto1(member.getId(), member.getName(), member.getNickname(), member.getCreatedDate()))
-                .orElseThrow(() -> new IllegalStateException("No Exist Member"));
+                .map(MemberDto.Response::new)
+                .orElseThrow(() -> new MemberNotFoundException("Member ID : %d Not Found".formatted(memberId), memberId + ""));
     }
 
     @Transactional
-    public Long updateNickname(Long memberNo, String updateNickname) {
-        Member updateMember = memberRepository.findById(memberNo)
-                                                    .orElseThrow(() -> new IllegalArgumentException("No Exist Member"));
+    public Long updateNickname(Long memberId, String updateNickname) {
+        Member updateMember = memberRepository.findById(memberId)
+                                                    .orElseThrow(() -> new MemberNotFoundException("Member ID : %d Not Found".formatted(memberId), memberId + ""));
         return updateMember.updateNickname(updateNickname);
     }
 
     @Transactional
     public void deleteMember(Long memberId) {
         if(!memberRepository.existsById(memberId)) {
-            throw new IllegalStateException("No Exist Member");
+            throw new MemberNotFoundException("No Exist Member", memberId + "");
         }
         memberRepository.deleteById(memberId);
     }
@@ -86,8 +86,7 @@ public class MemberService {
         Authentication authenticate
                 = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-        JwtTokenResponse jwtTokenResponse = jwtTokenProvider.generateToken(authenticate);
-        return jwtTokenResponse;
+        return jwtTokenProvider.generateToken(authenticate);
     }
 
     public JwtTokenResponse reissue(JwtTokenRequest jwtTokenRequest) {
@@ -101,8 +100,7 @@ public class MemberService {
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(RoleType.USER.name()));
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(memberEmail, null, authorities);
-        JwtTokenResponse jwtTokenResponse = jwtTokenProvider.generateToken(authentication);
-        return jwtTokenResponse;
+        return jwtTokenProvider.generateToken(authentication);
     }
 
     public void logout(JwtTokenRequest jwtTokenRequest) {

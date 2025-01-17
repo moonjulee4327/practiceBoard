@@ -35,6 +35,10 @@ public class MemberDto {
         private String nickname;
         private ZonedDateTime createdDate;
 
+        public Response(Long id) {
+            this.id = id;
+        }
+
         public Response(Member member) {
             this.id = member.getId();
             this.name = member.getName();
