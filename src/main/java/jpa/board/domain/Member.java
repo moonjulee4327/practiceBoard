@@ -26,6 +26,7 @@ public class Member implements UserDetails {
     @Column(name = "MEMBER_ID")
     private Long id;
 
+    @Column(unique = true)
     private String email;
 
     private String name;
@@ -65,8 +66,8 @@ public class Member implements UserDetails {
         return id;
     }
 
-    public MemberDto toMemberDto() {
-        return new MemberDto(id, name, nickname, createdDate);
+    public MemberDto.Response toMemberDto() {
+        return new MemberDto.Response(id, name, nickname, createdDate);
     }
 
     @Override

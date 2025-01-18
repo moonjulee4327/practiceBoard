@@ -17,28 +17,24 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("")
-    public ResponseEntity<MemberResponseDto> createMember(@RequestBody @Valid CreateMemberDto createMemberDto) {
-        Long saveMemberNo = memberService.saveMember(createMemberDto);
-        return ResponseEntity.ok(new MemberResponseDto(saveMemberNo));
+    public ResponseEntity<MemberDto.Response> createMember(@RequestBody @Valid MemberDto.Request request) {
+        return ResponseEntity.ok(memberService.saveMember(request));
     }
 
     @GetMapping("")
-    public ResponseEntity<Object> getMembers() {
-        List<MemberDto> list = memberService.findAllMembers();
-        return ResponseEntity.ok(list);
+    public ResponseEntity<List<MemberDto.Response>> getMembers() {
+        return ResponseEntity.ok(memberService.findAllMembers());
     }
 
     @GetMapping("/{memberId}")
-    public ResponseEntity<MemberDto> getMember(@PathVariable("memberId") Long memberId) {
-        MemberDto memberDto = memberService.findOneMember(memberId);
-        return ResponseEntity.ok(memberDto);
+    public ResponseEntity<MemberDto.Response> getMember(@PathVariable("memberId") Long memberId) {
+        return ResponseEntity.ok(memberService.findOneMember(memberId));
     }
 
     @PatchMapping("/{memberId}")
-    public ResponseEntity<MemberResponseDto> updateMember(@PathVariable("memberId") Long memberId,
-                                                          @RequestBody UpdateNicknameDto updateNicknameDto) {
-        Long memberNo = memberService.updateNickname(memberId, updateNicknameDto.getNickname());
-        return ResponseEntity.ok(new MemberResponseDto(memberNo));
+    public ResponseEntity<MemberDto.Response> updateMember(@PathVariable("memberId") Long memberId,
+                                                          @RequestBody MemberDto.Request request) {
+        return ResponseEntity.ok(memberService.updateNickname(memberId, request.getNickname()));
     }
 
     @DeleteMapping("/{memberId}")

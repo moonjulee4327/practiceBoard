@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class MemberService {
     private final MemberRepository memberRepository;
 
@@ -35,52 +34,48 @@ public class MemberService {
 
     private final SecurityContextService securityContextService;
 
-    public Long saveMember(CreateMemberDto createMemberDto) {
-        Member member = Member.builder()
-                .email(createMemberDto.getEmail())
-                .name(createMemberDto.getName())
-                .password(passwordEncoder.encode(createMemberDto.getPassword()))
-                .nickname(createMemberDto.getNickname())
-                .roleType(RoleType.USER)
-                .createdDate(ZonedDateTime.now())
-                .build();
-
-        validateDuplicateMember(member);
-        Member savedMember = memberRepository.save(member);
-        return savedMember.getId();
-    }
-
-    private void validateDuplicateMember(Member member) {
-        Member findMembers = memberRepository.findByName(member.getName());
-        if (findMembers != null) {
+    public MemberDto.Response saveMember(MemberDto.Request request) {
+        if (memberRepository.existsByEmail(request.getEmail())) {
             throw new IllegalStateException("Exist Duplicate Member");
         }
+
+        return new MemberDto.Response(memberRepository.save(Member.builder()
+                .email(request.getEmail())
+                .name(request.getName())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .nickname(request.getNickname())
+                .roleType(RoleType.USER)
+                .createdDate(ZonedDateTime.now())
+                .build()).getId());
     }
 
     @Transactional(readOnly = true)
-    public List<MemberDto> findAllMembers() {
+    public List<MemberDto.Response> findAllMembers() {
         return memberRepository.findAll()
                 .stream()
-                .map(Member::toMemberDto)
-                .collect(Collectors.toList());
+                .map(MemberDto.Response::new)
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public MemberDto findOneMember(Long memberId) {
+    public MemberDto.Response findOneMember(Long memberId) {
         return memberRepository.findById(memberId)
-                .map(member -> new MemberDto(member.getId(), member.getName(), member.getNickname(), member.getCreatedDate()))
-                .orElseThrow(() -> new IllegalStateException("No Exist Member"));
+                .map(MemberDto.Response::new)
+                .orElseThrow(() -> new MemberNotFoundException("Member ID : %d Not Found".formatted(memberId), memberId + ""));
     }
 
-    public Long updateNickname(Long memberNo, String updateNickname) {
-        Member updateMember = memberRepository.findById(memberNo)
-                                                    .orElseThrow(() -> new IllegalArgumentException("No Exist Member"));
-        return updateMember.updateNickname(updateNickname);
+    @Transactional
+    public MemberDto.Response updateNickname(Long memberId, String updateNickname) {
+        Member updateMember = memberRepository.findById(memberId)
+                                                    .orElseThrow(() -> new MemberNotFoundException("Member ID : %d Not Found".formatted(memberId), memberId + ""));
+        Long updatedMemberId = updateMember.updateNickname(updateNickname);
+        return new MemberDto.Response(updatedMemberId);
     }
 
+    @Transactional
     public void deleteMember(Long memberId) {
         if(!memberRepository.existsById(memberId)) {
-            throw new IllegalStateException("No Exist Member");
+            throw new MemberNotFoundException("No Exist Member", memberId + "");
         }
         memberRepository.deleteById(memberId);
     }
@@ -92,8 +87,7 @@ public class MemberService {
         Authentication authenticate
                 = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-        JwtTokenResponse jwtTokenResponse = jwtTokenProvider.generateToken(authenticate);
-        return jwtTokenResponse;
+        return jwtTokenProvider.generateToken(authenticate);
     }
 
     public JwtTokenResponse reissue(JwtTokenRequest jwtTokenRequest) {
@@ -107,8 +101,7 @@ public class MemberService {
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(RoleType.USER.name()));
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(memberEmail, null, authorities);
-        JwtTokenResponse jwtTokenResponse = jwtTokenProvider.generateToken(authentication);
-        return jwtTokenResponse;
+        return jwtTokenProvider.generateToken(authentication);
     }
 
     public void logout(JwtTokenRequest jwtTokenRequest) {
