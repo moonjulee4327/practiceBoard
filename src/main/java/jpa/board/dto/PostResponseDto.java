@@ -1,6 +1,5 @@
 package jpa.board.dto;
 
-import jpa.board.domain.Member;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,5 +14,5 @@ public class PostResponseDto {
 
     private String content;
 
-    private MemberDto memberDto;
+    private MemberDto.Response memberDto;
 }

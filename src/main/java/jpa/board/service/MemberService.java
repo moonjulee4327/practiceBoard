@@ -34,19 +34,19 @@ public class MemberService {
 
     private final SecurityContextService securityContextService;
 
-    public Long saveMember(MemberDto.Request request) {
+    public MemberDto.Response saveMember(MemberDto.Request request) {
         if (memberRepository.existsByEmail(request.getEmail())) {
             throw new IllegalStateException("Exist Duplicate Member");
         }
 
-        return memberRepository.save(Member.builder()
+        return new MemberDto.Response(memberRepository.save(Member.builder()
                 .email(request.getEmail())
                 .name(request.getName())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .nickname(request.getNickname())
                 .roleType(RoleType.USER)
                 .createdDate(ZonedDateTime.now())
-                .build()).getId();
+                .build()).getId());
     }
 
     @Transactional(readOnly = true)
@@ -65,10 +65,11 @@ public class MemberService {
     }
 
     @Transactional
-    public Long updateNickname(Long memberId, String updateNickname) {
+    public MemberDto.Response updateNickname(Long memberId, String updateNickname) {
         Member updateMember = memberRepository.findById(memberId)
                                                     .orElseThrow(() -> new MemberNotFoundException("Member ID : %d Not Found".formatted(memberId), memberId + ""));
-        return updateMember.updateNickname(updateNickname);
+        Long updatedMemberId = updateMember.updateNickname(updateNickname);
+        return new MemberDto.Response(updatedMemberId);
     }
 
     @Transactional

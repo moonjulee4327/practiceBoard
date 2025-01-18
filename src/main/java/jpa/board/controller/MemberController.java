@@ -18,8 +18,7 @@ public class MemberController {
 
     @PostMapping("")
     public ResponseEntity<MemberDto.Response> createMember(@RequestBody @Valid MemberDto.Request request) {
-        Long saveMemberNo = memberService.saveMember(request);
-        return ResponseEntity.ok(new MemberDto.Response(saveMemberNo));
+        return ResponseEntity.ok(memberService.saveMember(request));
     }
 
     @GetMapping("")
@@ -35,8 +34,7 @@ public class MemberController {
     @PatchMapping("/{memberId}")
     public ResponseEntity<MemberDto.Response> updateMember(@PathVariable("memberId") Long memberId,
                                                           @RequestBody MemberDto.Request request) {
-        Long memberNo = memberService.updateNickname(memberId, request.getNickname());
-        return ResponseEntity.ok(new MemberDto.Response(memberNo));
+        return ResponseEntity.ok(memberService.updateNickname(memberId, request.getNickname()));
     }
 
     @DeleteMapping("/{memberId}")
