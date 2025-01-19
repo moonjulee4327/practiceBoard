@@ -2,7 +2,6 @@ package jpa.board.service;
 
 import jpa.board.domain.Member;
 import jpa.board.domain.RoleType;
-import jpa.board.dto.CreateMemberDto;
 import jpa.board.dto.MemberDto;
 import jpa.board.repository.MemberRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -36,11 +35,11 @@ public class MemberServiceTest {
     @DisplayName("회원가입")
     void join() {
         Member member = createMember();
-        CreateMemberDto createMemberDto = new CreateMemberDto(member.getEmail(), member.getName(), member.getPassword(), member.getNickname());
+        MemberDto.Request request = new MemberDto.Request(member.getEmail(), member.getName(), member.getPassword(), member.getNickname());
 
         when(memberRepository.save(any(Member.class))).thenReturn(member);
 
-        Long saveNo = memberService.saveMember(createMemberDto);
+        Long saveNo = memberService.saveMember(request).getId();
 
         assertThat(saveNo).isEqualTo(1L);
     }
@@ -49,11 +48,11 @@ public class MemberServiceTest {
     @DisplayName("중복 회원 가입 시 예외 발생")
     void joinDuplication() {
         Member member = createMember();
-        CreateMemberDto createMemberDto = new CreateMemberDto(member.getEmail(), member.getName(), member.getPassword(), member.getNickname());
+        MemberDto.Request request = new MemberDto.Request(member.getEmail(), member.getName(), member.getPassword(), member.getNickname());
 
         when(memberRepository.findByName(member.getName())).thenReturn(member);
 
-        assertThrows(IllegalStateException.class, () -> memberService.saveMember(createMemberDto));
+        assertThrows(IllegalStateException.class, () -> memberService.saveMember(request));
         verify(memberRepository, times(0)).save(member);
     }
 
@@ -65,7 +64,7 @@ public class MemberServiceTest {
         List<Member> members = List.of(member);
         when(memberRepository.findAll()).thenReturn(members);
 
-        List<MemberDto> memberDtos = memberService.findAllMembers();
+        List<MemberDto.Response> memberDtos = memberService.findAllMembers();
 
         assertNotNull(memberDtos);
         assertEquals(1, memberDtos.size());
@@ -78,7 +77,7 @@ public class MemberServiceTest {
     void findAllMembersNotFound() {
         when(memberRepository.findAll()).thenReturn(List.of());
 
-        List<MemberDto> memberDtos = memberService.findAllMembers();
+        List<MemberDto.Response> memberDtos = memberService.findAllMembers();
 
         assertNotNull(memberDtos);
         assertEquals(0, memberDtos.size());
@@ -91,7 +90,7 @@ public class MemberServiceTest {
         Member member = createMember();
         when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
 
-        MemberDto memberDto = memberService.findOneMember(member.getId());
+        MemberDto.Response memberDto = memberService.findOneMember(member.getId());
 
         assertNotNull(memberDto);
         assertEquals(member.getName(), memberDto.getName());
@@ -116,9 +115,9 @@ public class MemberServiceTest {
 
         when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
 
-        Long updatedMemberNo = memberService.updateNickname(member.getId(), newNickname);
+        MemberDto.Response response = memberService.updateNickname(member.getId(), newNickname);
 
-        assertThat(updatedMemberNo).isEqualTo(member.getId());
+        assertThat(response.getId() ).isEqualTo(member.getId());
         assertThat(member.getNickname()).isEqualTo(newNickname);
 
         verify(memberRepository, times(1)).findById(member.getId());
