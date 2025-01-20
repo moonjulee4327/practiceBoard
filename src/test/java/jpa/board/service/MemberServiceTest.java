@@ -3,6 +3,7 @@ package jpa.board.service;
 import jpa.board.domain.Member;
 import jpa.board.domain.RoleType;
 import jpa.board.dto.MemberDto;
+import jpa.board.exception.MemberNotFoundException;
 import jpa.board.repository.MemberRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,7 +51,7 @@ public class MemberServiceTest {
         Member member = createMember();
         MemberDto.Request request = new MemberDto.Request(member.getEmail(), member.getName(), member.getPassword(), member.getNickname());
 
-        when(memberRepository.findByName(member.getName())).thenReturn(member);
+        when(memberRepository.existsByEmail(member.getEmail())).thenReturn(true);
 
         assertThrows(IllegalStateException.class, () -> memberService.saveMember(request));
         verify(memberRepository, times(0)).save(member);
@@ -103,7 +104,7 @@ public class MemberServiceTest {
         Long notFoundMemberId = 1000L;
         when(memberRepository.findById(notFoundMemberId)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalStateException.class
+        assertThrows(MemberNotFoundException.class
                 , () -> memberService.findOneMember(notFoundMemberId));
     }
 
@@ -130,7 +131,7 @@ public class MemberServiceTest {
         String newNickname = "new";
 
         when(memberRepository.findById(notFoundMemberId)).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> memberService.updateNickname(notFoundMemberId, newNickname));
+        assertThrows(MemberNotFoundException.class, () -> memberService.updateNickname(notFoundMemberId, newNickname));
 
         verify(memberRepository, times(1)).findById(notFoundMemberId);
         verifyNoMoreInteractions(memberRepository);
@@ -155,7 +156,7 @@ public class MemberServiceTest {
 
         when(memberRepository.existsById(notFoundMemberId)).thenReturn(false);
 
-        assertThrows(IllegalStateException.class, () -> memberService.deleteMember(notFoundMemberId));
+        assertThrows(MemberNotFoundException.class, () -> memberService.deleteMember(notFoundMemberId));
 
         verify(memberRepository, never()).deleteById(notFoundMemberId);
     }
