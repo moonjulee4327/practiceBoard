@@ -38,6 +38,8 @@ public class MemberServiceTest {
         Member member = createMember();
         MemberDto.Request request = new MemberDto.Request(member.getEmail(), member.getName(), member.getPassword(), member.getNickname());
 
+        when(memberRepository.existsByEmail(member.getEmail())).thenReturn(false);
+        when(passwordEncoder.encode(request.getPassword())).thenReturn("encodePassword");
         when(memberRepository.save(any(Member.class))).thenReturn(member);
 
         Long saveNo = memberService.saveMember(request).getId();
@@ -118,7 +120,7 @@ public class MemberServiceTest {
 
         MemberDto.Response response = memberService.updateNickname(member.getId(), newNickname);
 
-        assertThat(response.getId() ).isEqualTo(member.getId());
+        assertThat(response.getId()).isEqualTo(member.getId());
         assertThat(member.getNickname()).isEqualTo(newNickname);
 
         verify(memberRepository, times(1)).findById(member.getId());
