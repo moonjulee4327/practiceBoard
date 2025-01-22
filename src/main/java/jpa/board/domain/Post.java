@@ -1,7 +1,7 @@
 package jpa.board.domain;
 
 import jakarta.persistence.*;
-import jpa.board.dto.PostResponseDto;
+import jpa.board.dto.PostDto;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -31,8 +31,8 @@ public class Post {
     @OrderBy("id asc")
     private List<Comment> comments = new ArrayList<>();
 
-    public PostResponseDto toPostDto() {
-        return new PostResponseDto(id, title, content, member.toMemberDto());
+    public PostDto.Response toPostDto() {
+        return new PostDto.Response(id, title, content, member.toMemberDto());
     }
 
     public Long updatePost(String title, String content) {

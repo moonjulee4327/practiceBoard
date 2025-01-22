@@ -16,31 +16,27 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("")
-    public ResponseEntity<PostIdDto> createPost(@RequestBody CreatePostRequest createPostRequest) {
-        Long postId = postService.savePost(createPostRequest);
-        return ResponseEntity.ok(new PostIdDto(postId));
+    public ResponseEntity<PostDto.Response> createPost(@RequestBody PostDto.Request request) {
+        return ResponseEntity.ok(postService.savePost(request));
     }
 
     @GetMapping("")
-    public ResponseEntity<List<PostResponseDto>> getPosts() {
-        List<PostResponseDto> list = postService.findAllPost();
-        return ResponseEntity.ok(list);
+    public ResponseEntity<List<PostDto.Response>> getPosts() {
+        return ResponseEntity.ok(postService.findAllPost());
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<PostResponseDto> getPost(@PathVariable("postId") Long postId) {
-        PostResponseDto postResponseDto = postService.findOnePost(postId);
-        return ResponseEntity.ok(postResponseDto);
+    public ResponseEntity<PostDto.Response> getPost(@PathVariable("postId") Long postId) {
+        return ResponseEntity.ok(postService.findOnePost(postId));
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<PostIdDto> updatePost(@PathVariable("postId") Long postId, @RequestBody UpdatePostRequestDto updatePostRequestDto) {
-        PostIdDto postIdDto = postService.updateOnePost(postId, updatePostRequestDto);
-        return ResponseEntity.ok(postIdDto);
+    public ResponseEntity<PostDto.Response> updatePost(@PathVariable("postId") Long postId, @RequestBody PostDto.Request request) {
+        return ResponseEntity.ok(postService.updateOnePost(postId, request));
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<Long> deletePost(@PathVariable("postId") Long postId) {
+    public ResponseEntity<Void> deletePost(@PathVariable("postId") Long postId) {
         postService.deletePostById(postId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
