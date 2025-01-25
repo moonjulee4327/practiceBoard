@@ -1,5 +1,6 @@
 package jpa.board.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jpa.board.domain.Member;
@@ -29,6 +30,7 @@ public class MemberDto {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Response {
         private Long id;
         private String name;
