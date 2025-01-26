@@ -1,5 +1,6 @@
 package jpa.board.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jpa.board.domain.Comment;
 import jpa.board.domain.Member;
 import jpa.board.domain.Post;
@@ -34,6 +35,7 @@ public class CommentDto {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Response {
         private Long id;
         private String author;
