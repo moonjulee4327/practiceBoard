@@ -2,67 +2,68 @@ package jpa.board.service;
 
 import jpa.board.domain.Member;
 import jpa.board.domain.Post;
-import jpa.board.dto.CreatePostRequest;
-import jpa.board.dto.PostResponseDto;
-import jpa.board.dto.PostIdDto;
-import jpa.board.dto.UpdatePostRequestDto;
+import jpa.board.dto.PostDto;
 import jpa.board.exception.PostNotFoundException;
-import jpa.board.repository.MemberRepository;
 import jpa.board.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
-    public Long savePost(CreatePostRequest createPostRequest) {
-        Member member = memberRepository.findById(createPostRequest.getMemberNo())
-                .orElseThrow(() -> new IllegalArgumentException("No Exist Post"));
+    @Transactional
+    public PostDto.Response savePost(PostDto.Request request) {
+        Member member = memberService.findAuthenticatedMember();
 
         Post post = Post.builder()
-                .title(createPostRequest.getTitle())
-                .content(createPostRequest.getContent())
+                .title(request.getTitle())
+                .content(request.getContent())
                 .member(member)
                 .build();
         postRepository.save(post);
+        log.info("Added Post ID : {}", post.getId());
 
-        return post.getId();
+        return new PostDto.Response(post);
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponseDto> findAllPost() {
+    public List<PostDto.Response> findAllPost() {
         return postRepository.findAll()
                 .stream()
-                .map(Post::toPostDto)
-                .collect(Collectors.toList());
+                .map(PostDto.Response::new)
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public PostResponseDto findOnePost(Long postId) {
+    public PostDto.Response findOnePost(Long postId) {
         return  postRepository.findById(postId)
-                .map(Post::toPostDto)
-                .orElseThrow(() -> new IllegalStateException("No Exist Post"));
+                .map(PostDto.Response::new)
+                .orElseThrow(() -> new PostNotFoundException("Post ID : " + postId + " Not Found (Post One)", postId));
     }
 
     @Transactional
-    public PostIdDto updateOnePost(Long postId, UpdatePostRequestDto updatePostRequestDto) {
+    public PostDto.Response updateOnePost(Long postId, PostDto.Request request) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFoundException("Post ID : " + postId + " Not Found", postId));
-        Long updatePostId = post.updatePost(updatePostRequestDto.getTitle(), updatePostRequestDto.getContent());
-        return new PostIdDto(updatePostId);
+                .orElseThrow(() -> new PostNotFoundException("Post ID : " + postId + " Not Found (Update Post)", postId));
+        Long updatePostId = post.updatePost(request.getTitle(), request.getContent());
+        log.info("Updated Post ID : {}", postId);
+        return new PostDto.Response(updatePostId);
     }
 
+    @Transactional
     public void deletePostById(Long postId) {
         if(!postRepository.existsById(postId)) {
-            throw new IllegalStateException("No Exist Post");
+            throw new PostNotFoundException("Post ID : " + postId + " Not Found (Delete Post)", postId);
         }
         postRepository.deleteById(postId);
+        log.info("Deleted Post ID : {}", postId);
     }
 }
