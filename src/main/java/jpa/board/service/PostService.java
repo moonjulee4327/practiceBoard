@@ -28,10 +28,10 @@ public class PostService {
                 .content(request.getContent())
                 .member(member)
                 .build();
-        postRepository.save(post);
-        log.info("Added Post ID : {}", post.getId());
+        Post savedPost = postRepository.save(post);
+        log.info("Added Post ID : {}", savedPost.getId());
 
-        return new PostDto.Response(post);
+        return new PostDto.Response(savedPost);
     }
 
     @Transactional(readOnly = true)
