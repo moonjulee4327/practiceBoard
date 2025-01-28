@@ -6,8 +6,10 @@ import jpa.board.domain.RoleType;
 import jpa.board.dto.PostDto;
 import jpa.board.repository.PostRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.ZonedDateTime;
 
@@ -15,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class PostServiceTest {
     @Mock
     private PostRepository postRepository;
@@ -31,7 +34,7 @@ class PostServiceTest {
         when(memberService.findAuthenticatedMember()).thenReturn(mockMember);
 
         PostDto.Request request = new PostDto.Request(1L, "제목", "내용");
-        Post savedPost = createPost(mockMember);
+        Post savedPost = createPost(1L, mockMember);
 
         when(postRepository.save(any(Post.class))).thenReturn(savedPost);
 
@@ -62,14 +65,13 @@ class PostServiceTest {
     void deletePostById() {
     }
 
-    private Post createPost(Member member) {
-        Post post = Post.builder()
-                .id(1L)
+    private Post createPost(Long id, Member member) {
+        return Post.builder()
+                .id(id)
                 .title("제목")
                 .content("내용")
                 .member(member)
                 .build();
-        return null;
     }
 
     private Member createMember() {
