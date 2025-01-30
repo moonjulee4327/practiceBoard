@@ -42,9 +42,13 @@ class MemberServiceTest {
         when(passwordEncoder.encode(request.getPassword())).thenReturn("encodePassword");
         when(memberRepository.save(any(Member.class))).thenReturn(member);
 
-        Long saveNo = memberService.saveMember(request).getId();
+        MemberDto.Response response = memberService.saveMember(request);
 
-        assertThat(saveNo).isEqualTo(1L);
+        assertNotNull(response);
+        assertEquals(1L, response.getId());
+
+        verify(memberRepository, times(1)).existsByEmail("mj1234@kakao.com");
+        verify(memberRepository, times(1)).save(any(Member.class));
     }
 
     @Test
