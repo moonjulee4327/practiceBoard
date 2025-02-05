@@ -12,8 +12,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -51,10 +52,38 @@ class PostServiceTest {
 
     @Test
     void findAllPost() {
+        Member mockMember = createMember();
+        Post post1 = createPost(1L, mockMember);
+        Post post2 = createPost(2L, mockMember);
+        when(postRepository.findAll()).thenReturn(List.of(post1, post2));
+
+        List<PostDto.Response> postList = postService.findAllPost();
+
+        assertEquals(2, postList.size());
+        assertEquals(1L, postList.get(0).getPostId());
+        assertEquals(2L, postList.get(1).getPostId());
+
+        verify(postRepository, times(1)).findAll();
     }
 
     @Test
     void findOnePost() {
+        Member mockMember = createMember();
+        Post post = createPost(1L, mockMember);
+        when(postRepository.findById(1L)).thenReturn(Optional.of(post));
+
+        PostDto.Response response = postService.findOnePost(1L);
+
+        assertNull(response);
+        assertEquals(post.getId(), response.getPostId());
+        assertEquals("제목", response.getTitle());
+        assertEquals("내용", response.getContent());
+
+        verify(postRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void findOnePostNotFoundException() {
     }
 
     @Test
