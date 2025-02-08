@@ -4,6 +4,7 @@ import jpa.board.domain.Member;
 import jpa.board.domain.Post;
 import jpa.board.domain.RoleType;
 import jpa.board.dto.PostDto;
+import jpa.board.exception.PostNotFoundException;
 import jpa.board.repository.PostRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -84,6 +85,10 @@ class PostServiceTest {
 
     @Test
     void findOnePostNotFoundException() {
+        Long notExistPostId = 1L;
+        when(postRepository.findById(notExistPostId)).thenReturn(Optional.empty());
+
+        assertThrows(PostNotFoundException.class, () -> postService.findOnePost(notExistPostId));
     }
 
     @Test
