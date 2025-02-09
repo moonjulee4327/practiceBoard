@@ -93,6 +93,25 @@ class PostServiceTest {
 
     @Test
     void updateOnePost() {
+        Member mockMember = createMember();
+        when(memberService.findAuthenticatedMember()).thenReturn(mockMember);
+
+        PostDto.Request request = new PostDto.Request(1L, "제목", "내용");
+        Post savedPost = createPost(1L, mockMember);
+
+        when(postRepository.save(any(Post.class))).thenReturn(savedPost);
+
+        PostDto.Response response = postService.savePost(request);
+
+        PostDto.Request updateRequest = new PostDto.Request(savedPost.getId(), "수정된 제목", "수정된 내용");
+        when(postRepository.findById(1L)).thenReturn(Optional.of(savedPost));
+        postService.updateOnePost(savedPost.getId(), updateRequest);
+
+        assertEquals(savedPost.getTitle(), updateRequest.getTitle());
+        assertEquals("수정된 제목", savedPost.getTitle());
+        assertEquals("수정된 내용", savedPost.getContent());
+
+        verify(postRepository, times(1)).findById(1L);
     }
 
     @Test
