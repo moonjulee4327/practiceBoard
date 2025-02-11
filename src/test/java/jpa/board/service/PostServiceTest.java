@@ -88,7 +88,7 @@ class PostServiceTest {
     }
 
     @Test
-    @DisplayName("특정 게시물 조회-게시글이 존재하지 않는 경우")
+    @DisplayName("특정 게시물 조회-게시글이 존재 하지 않는 경우")
     void findOnePostNotFoundException() {
         Long notExistPostId = 1L;
         when(postRepository.findById(notExistPostId)).thenReturn(Optional.empty());
@@ -121,6 +121,17 @@ class PostServiceTest {
     }
 
     @Test
+    @DisplayName("특정 게시물 수정 실패-게시글이 존재 하지 않는 경우")
+    void updateOnePostNotFoundException() {
+        Long notExistPostId = 1L;
+        when(postRepository.findById(notExistPostId)).thenThrow(PostNotFoundException.class);
+
+        PostDto.Request updateRequest = new PostDto.Request(notExistPostId, "수정된 제목", "수정된 내용");
+
+        assertThrows(PostNotFoundException.class, () -> postService.updateOnePost(notExistPostId, updateRequest));
+    }
+
+    @Test
     @DisplayName("특정 게시물 삭제 성공")
     void deletePostById() {
         Long postId = 1L;
@@ -133,7 +144,7 @@ class PostServiceTest {
 
     @Test
     @DisplayName("특정 게시물 삭제 실패")
-    void deletePostNotFound() {
+    void deletePostNotFoundException() {
         Long postId = 1L;
         when(postRepository.existsById(postId)).thenReturn(false);
 
