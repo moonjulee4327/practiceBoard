@@ -5,10 +5,9 @@ import jpa.board.domain.Member;
 import jpa.board.domain.Post;
 import jpa.board.domain.RoleType;
 import jpa.board.dto.CommentDto;
-import jpa.board.dto.MemberDto;
 import jpa.board.repository.CommentRepository;
 import jpa.board.repository.PostRepository;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,10 +15,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,11 +36,12 @@ class CommentServiceTest {
     private CommentService commentService;
 
     @Test
+    @DisplayName("댓글 작성 성공")
     void addCommentToPost() {
         Member mockMember = createMember();
         Post post = createPost(1L, mockMember);
         CommentDto.Request commentRequest = new CommentDto.Request(1L, "댓글 내용");
-        Comment comment = createComment(1L, mockMember, post.getId());
+        Comment comment = createComment(1L, mockMember, post.getId(), "댓글 내용");
 
         when(memberService.findAuthenticatedMember()).thenReturn(mockMember);
         when(postRepository.findById(1L)).thenReturn(Optional.of(post));
@@ -58,7 +58,23 @@ class CommentServiceTest {
     }
 
     @Test
+    @DisplayName("댓글 조회 성공")
     void findCommentToPost() {
+        Member mockMember = createMember();
+        Post post = createPost(1L, mockMember);
+        Comment comment1 = createComment(1L, mockMember, post.getId(), "댓글 1");
+        Comment comment2 = createComment(2L, mockMember, post.getId(), "댓글 2");
+        List<Comment> commentList = List.of(comment1, comment2);
+
+        when(commentRepository.findByPostId(post.getId())).thenReturn(commentList);
+
+        List<CommentDto.Response> commentToPost = commentService.findCommentToPost(post.getId());
+
+        assertEquals(commentToPost.size(), 2);
+        assertEquals(commentToPost.get(0).getComment(), "댓글 1");
+        assertEquals(commentToPost.get(1).getComment(), "댓글 2");
+
+        verify(commentRepository, times(1)).findByPostId(post.getId());
     }
 
     @Test
@@ -69,10 +85,10 @@ class CommentServiceTest {
     void deleteCommentById() {
     }
 
-    private Comment createComment(Long id, Member member, Long postId) {
+    private Comment createComment(Long id, Member member, Long postId, String comment) {
         return Comment.builder()
                 .id(id)
-                .comment("댓글 내용")
+                .comment(comment)
                 .createdDate(ZonedDateTime.now())
                 .modifiedDate(ZonedDateTime.now())
                 .member(member)
