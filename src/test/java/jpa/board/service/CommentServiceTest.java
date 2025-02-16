@@ -32,6 +32,9 @@ class CommentServiceTest {
     @Mock
     private MemberService memberService;
 
+    @Mock
+    private SecurityContextService securityContextService;
+
     @InjectMocks
     private CommentService commentService;
 
@@ -78,7 +81,22 @@ class CommentServiceTest {
     }
 
     @Test
+    @DisplayName("댓글 수정 성공")
     void updateCommentToPost() {
+        Member mockMember = createMember();
+        Post post = createPost(1L, mockMember);
+        Comment comment = createComment(1L, mockMember, post.getId(), "댓글");
+        String updateComment = "댓글 수정!";
+        CommentDto.Request request = new CommentDto.Request(comment.getId(), updateComment);
+
+        when(commentRepository.findByIdAndPostId(comment.getId(), post.getId())).thenReturn(Optional.of(comment));
+        when(securityContextService.getCurrentMemberEmail()).thenReturn(mockMember.getEmail());
+
+        CommentDto.Response response = commentService.updateCommentToPost(post.getId(), request);
+
+        assertEquals(response.getComment(), updateComment);
+
+        verify(commentRepository, times(1)).findByIdAndPostId(comment.getId(), post.getId());
     }
 
     @Test
