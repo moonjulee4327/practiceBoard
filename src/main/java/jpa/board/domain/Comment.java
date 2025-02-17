@@ -34,6 +34,7 @@ public class Comment {
 
     public Long updateComment(String updateComment) {
         this.comment = updateComment;
+        this.modifiedDate = ZonedDateTime.now();
         return id;
     }
 
