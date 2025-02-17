@@ -5,6 +5,7 @@ import jpa.board.domain.Member;
 import jpa.board.domain.Post;
 import jpa.board.domain.RoleType;
 import jpa.board.dto.CommentDto;
+import jpa.board.exception.PostNotFoundException;
 import jpa.board.repository.CommentRepository;
 import jpa.board.repository.PostRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,6 +60,19 @@ class CommentServiceTest {
         assertEquals(post.getId(), comment.getPostId());
 
         verify(commentRepository, times(1)).save(any(Comment.class));
+    }
+    
+    @Test
+    @DisplayName("댓글 작성 실패-게시글")
+    void addCommentToPostNot() {
+        Long postId = 1000L;
+
+        when(postRepository.findById(postId)).thenReturn(Optional.empty());
+
+        CommentDto.Request commentRequest = new CommentDto.Request(1L, "댓글 내용");
+        assertThrows(PostNotFoundException.class, () -> commentService.addCommentToPost(postId, commentRequest));
+
+        verify(commentRepository, never()).save(any(Comment.class));
     }
 
     @Test
