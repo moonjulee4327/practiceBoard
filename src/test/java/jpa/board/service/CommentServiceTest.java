@@ -5,6 +5,7 @@ import jpa.board.domain.Member;
 import jpa.board.domain.Post;
 import jpa.board.domain.RoleType;
 import jpa.board.dto.CommentDto;
+import jpa.board.exception.CommentPermissionException;
 import jpa.board.exception.PostNotFoundException;
 import jpa.board.repository.CommentRepository;
 import jpa.board.repository.PostRepository;
@@ -115,7 +116,53 @@ class CommentServiceTest {
     }
 
     @Test
+    @DisplayName("댓글 삭제 성공")
     void deleteCommentById() {
+        Member mockMember = createMember();
+        Post post = createPost(1L, mockMember);
+        Comment comment = createComment(1L, mockMember, post.getId(), "댓글");
+        CommentDto.Request request = CommentDto.Request.builder()
+                                                    .id(comment.getId())
+                                                    .build();
+
+        when(commentRepository.findByIdAndPostId(comment.getId(), post.getId())).thenReturn(Optional.of(comment));
+        when(securityContextService.getCurrentMemberEmail()).thenReturn(mockMember.getEmail());
+
+        commentService.deleteCommentById(post.getId(), request);
+
+        verify(commentRepository, times(1)).delete(comment);
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패-postId 또는 commentId 불일치")
+    void deleteCommentById_findByIdAndPostId() {
+        Member mockMember = createMember();
+        Post post = createPost(1L, mockMember);
+        Comment comment = createComment(1L, mockMember, post.getId(), "댓글");
+        CommentDto.Request request = CommentDto.Request.builder()
+                                                    .id(comment.getId())
+                                                    .build();
+
+        when(commentRepository.findByIdAndPostId(comment.getId(), post.getId())).thenReturn(Optional.empty());
+
+        assertThrows(CommentPermissionException.class, () -> commentService.deleteCommentById(post.getId(), request));
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 실패-댓글 작성자가 아닐 경우")
+    void deleteCommentById_NotAuthor() {
+        Member mockMember = createMember();
+        Post post = createPost(1L, mockMember);
+        Comment comment = createComment(1L, mockMember, post.getId(), "댓글");
+        CommentDto.Request request = CommentDto.Request.builder()
+                                                    .id(comment.getId())
+                                                    .build();
+        String notAuthor = "hacker@gmail.com";
+
+        when(commentRepository.findByIdAndPostId(comment.getId(), post.getId())).thenReturn(Optional.of(comment));
+        when(securityContextService.getCurrentMemberEmail()).thenReturn(notAuthor);
+
+        assertThrows(CommentPermissionException.class, () -> commentService.deleteCommentById(post.getId(), request));
     }
 
     private Comment createComment(Long id, Member member, Long postId, String comment) {
