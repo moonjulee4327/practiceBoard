@@ -128,9 +128,31 @@ class CommentServiceTest {
 
         when(commentRepository.findByIdAndPostId(comment.getId(), post.getId())).thenReturn(Optional.empty());
 
-        System.out.println(c);
+        assertThrows(CommentPermissionException.class, () -> commentService.updateCommentToPost(post.getId(), request));
+
+        verify(commentRepository, times(1)).findByIdAndPostId(comment.getId(), post.getId());
+        verify(securityContextService, never()).getCurrentMemberEmail();
+    }
+
+    @Test
+    @DisplayName("댓글 수정 실패-댓글 작성자가 아닐 경우")
+    void updateCommentToPost_notAuthor() {
+        Member mockMember = createMember();
+        Post post = createPost(1L, mockMember);
+        Comment comment = createComment(1L, mockMember, post.getId(), "댓글");
+        CommentDto.Request request = CommentDto.Request.builder()
+                                            .id(comment.getId())
+                                            .comment("댓글 수정!")
+                                            .build();
+        String notAuthor = "hacker@gmail.com";
+
+        when(commentRepository.findByIdAndPostId(comment.getId(), post.getId())).thenReturn(Optional.of(comment));
+        when(securityContextService.getCurrentMemberEmail()).thenReturn(notAuthor);
 
         assertThrows(CommentPermissionException.class, () -> commentService.updateCommentToPost(post.getId(), request));
+
+        verify(commentRepository, times(1)).findByIdAndPostId(comment.getId(), post.getId());
+        verify(securityContextService, times(1)).getCurrentMemberEmail();
     }
 
     @Test
