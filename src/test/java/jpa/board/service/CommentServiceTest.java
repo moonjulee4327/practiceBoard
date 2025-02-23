@@ -6,8 +6,10 @@ import jpa.board.domain.Post;
 import jpa.board.domain.RoleType;
 import jpa.board.dto.CommentDto;
 import jpa.board.exception.CommentPermissionException;
+import jpa.board.exception.MemberNotFoundException;
 import jpa.board.exception.PostNotFoundException;
 import jpa.board.repository.CommentRepository;
+import jpa.board.repository.MemberRepository;
 import jpa.board.repository.PostRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,6 +36,9 @@ class CommentServiceTest {
 
     @Mock
     private MemberService memberService;
+
+    @Mock
+    private MemberRepository memberRepository;
 
     @Mock
     private SecurityContextService securityContextService;
@@ -65,7 +70,7 @@ class CommentServiceTest {
     
     @Test
     @DisplayName("댓글 작성 실패-게시글이 존재하지 않는 경우")
-    void addCommentToPostNot() {
+    void addCommentToNotPost() {
         Long postId = 1000L;
 
         when(postRepository.findById(postId)).thenReturn(Optional.empty());
@@ -74,6 +79,22 @@ class CommentServiceTest {
         assertThrows(PostNotFoundException.class, () -> commentService.addCommentToPost(postId, commentRequest));
 
         verify(commentRepository, never()).save(any(Comment.class));
+    }
+
+    @Test
+    @DisplayName("댓글 작성 실패-회원이 아닌 경우")
+    void addCommentNotMember() {
+        Member mockMember = createMember();
+        Post post = createPost(1L, mockMember);
+        CommentDto.Request request = new CommentDto.Request(1L, "댓글 내용");
+        String notAuthor = "hacker@gmail.com";
+
+        when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
+        when(securityContextService.getCurrentMemberEmail()).thenReturn(notAuthor);
+//        when(memberRepository.findByEmail(notAuthor)).thenReturn(Optional.empty());
+        when(memberRepository.findByEmail(notAuthor)).thenThrow(new MemberNotFoundException("Member Not Found With Email : " + notAuthor, notAuthor));
+
+        assertThrows(MemberNotFoundException.class, () -> commentService.addCommentToPost(post.getId(), request));
     }
 
     @Test
