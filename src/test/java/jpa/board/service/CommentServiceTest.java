@@ -38,9 +38,6 @@ class CommentServiceTest {
     private MemberService memberService;
 
     @Mock
-    private MemberRepository memberRepository;
-
-    @Mock
     private SecurityContextService securityContextService;
 
     @InjectMocks
@@ -89,10 +86,7 @@ class CommentServiceTest {
         CommentDto.Request request = new CommentDto.Request(1L, "댓글 내용");
         String notAuthor = "hacker@gmail.com";
 
-        when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
-        when(securityContextService.getCurrentMemberEmail()).thenReturn(notAuthor);
-//        when(memberRepository.findByEmail(notAuthor)).thenReturn(Optional.empty());
-        when(memberRepository.findByEmail(notAuthor)).thenThrow(new MemberNotFoundException("Member Not Found With Email : " + notAuthor, notAuthor));
+        when(memberService.findAuthenticatedMember()).thenThrow(new MemberNotFoundException("Member Not Found With Email : " + notAuthor, notAuthor));
 
         assertThrows(MemberNotFoundException.class, () -> commentService.addCommentToPost(post.getId(), request));
     }
