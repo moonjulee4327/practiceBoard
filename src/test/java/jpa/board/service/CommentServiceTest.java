@@ -89,7 +89,7 @@ class CommentServiceTest {
 
         assertThrows(MemberNotFoundException.class, () -> commentService.addCommentToPost(post.getId(), request));
 
-        verify(commentRepository, never()).save(any(Comment.class))
+        verify(commentRepository, never()).save(any(Comment.class));
     }
 
     @Test
