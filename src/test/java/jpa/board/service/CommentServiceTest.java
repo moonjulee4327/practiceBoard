@@ -9,7 +9,6 @@ import jpa.board.exception.CommentPermissionException;
 import jpa.board.exception.MemberNotFoundException;
 import jpa.board.exception.PostNotFoundException;
 import jpa.board.repository.CommentRepository;
-import jpa.board.repository.MemberRepository;
 import jpa.board.repository.PostRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -89,6 +88,8 @@ class CommentServiceTest {
         when(memberService.findAuthenticatedMember()).thenThrow(new MemberNotFoundException("Member Not Found With Email : " + notAuthor, notAuthor));
 
         assertThrows(MemberNotFoundException.class, () -> commentService.addCommentToPost(post.getId(), request));
+
+        verify(commentRepository, never()).save(any(Comment.class))
     }
 
     @Test
