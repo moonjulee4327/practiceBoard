@@ -42,6 +42,8 @@ class CommentServiceTest {
     @InjectMocks
     private CommentService commentService;
 
+    private final String notAuthor = "hacker@gmail.com";
+
     @Test
     @DisplayName("댓글 작성 성공")
     void addCommentToPost() {
@@ -83,7 +85,6 @@ class CommentServiceTest {
         Member mockMember = createMember();
         Post post = createPost(1L, mockMember);
         CommentDto.Request request = new CommentDto.Request(1L, "댓글 내용");
-        String notAuthor = "hacker@gmail.com";
 
         when(memberService.findAuthenticatedMember()).thenThrow(new MemberNotFoundException("Member Not Found With Email : " + notAuthor, notAuthor));
 
@@ -160,7 +161,6 @@ class CommentServiceTest {
                                             .id(comment.getId())
                                             .comment("댓글 수정!")
                                             .build();
-        String notAuthor = "hacker@gmail.com";
 
         when(commentRepository.findByIdAndPostId(comment.getId(), post.getId())).thenReturn(Optional.of(comment));
         when(securityContextService.getCurrentMemberEmail()).thenReturn(notAuthor);
@@ -213,7 +213,6 @@ class CommentServiceTest {
         CommentDto.Request request = CommentDto.Request.builder()
                                                     .id(comment.getId())
                                                     .build();
-        String notAuthor = "hacker@gmail.com";
 
         when(commentRepository.findByIdAndPostId(comment.getId(), post.getId())).thenReturn(Optional.of(comment));
         when(securityContextService.getCurrentMemberEmail()).thenReturn(notAuthor);
