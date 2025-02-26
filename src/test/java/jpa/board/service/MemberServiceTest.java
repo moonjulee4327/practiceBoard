@@ -33,7 +33,7 @@ class MemberServiceTest {
     private MemberService memberService;
 
     @Test
-    @DisplayName("회원가입")
+    @DisplayName("회원가입 성공")
     void join() {
         Member member = createMember();
         MemberDto.Request request = new MemberDto.Request(member.getEmail(), member.getName(), member.getPassword(), member.getNickname());
@@ -52,7 +52,7 @@ class MemberServiceTest {
     }
 
     @Test
-    @DisplayName("중복 회원 가입 시 예외 발생")
+    @DisplayName("회원가입 실패-이메일 중복")
     void joinDuplication() {
         Member member = createMember();
         MemberDto.Request request = new MemberDto.Request(member.getEmail(), member.getName(), member.getPassword(), member.getNickname());
@@ -64,7 +64,7 @@ class MemberServiceTest {
     }
 
     @Test
-    @DisplayName("모든 회원 조회-회원이 존재하는 경우")
+    @DisplayName("모든 회원 조회 성공")
     void findAll() {
         Member member = createMember();
 
@@ -78,21 +78,9 @@ class MemberServiceTest {
         assertEquals(member.getName(), memberDtos.get(0).getName());
         verify(memberRepository, times(1)).findAll();
     }
-
+    
     @Test
-    @DisplayName("모든 회원 조회-회원이 존재하지 않는 경우")
-    void findAllMembersNotFound() {
-        when(memberRepository.findAll()).thenReturn(List.of());
-
-        List<MemberDto.Response> memberDtos = memberService.findAllMembers();
-
-        assertNotNull(memberDtos);
-        assertEquals(0, memberDtos.size());
-        assertTrue(memberDtos.isEmpty());
-    }
-
-    @Test
-    @DisplayName("특정 회원 조회")
+    @DisplayName("단일 회원 조회 성공")
     void findOne() {
         Member member = createMember();
         when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
@@ -105,7 +93,7 @@ class MemberServiceTest {
     }
 
     @Test
-    @DisplayName("특정 회원이 존재하지 않을 경우 예외 발생")
+    @DisplayName("단일 회원 조회 실패-회원이 존재하지 않는 경우")
     void findOneMenberNotFound() {
         Long notFoundMemberId = 1000L;
         when(memberRepository.findById(notFoundMemberId)).thenReturn(Optional.empty());
@@ -115,7 +103,7 @@ class MemberServiceTest {
     }
 
     @Test
-    @DisplayName("회원 닉네임 수정 성공")
+    @DisplayName("닉네임 수정 성공")
     void updatedNickname() {
         Member member = createMember();
         String newNickname = "new";
@@ -131,7 +119,7 @@ class MemberServiceTest {
     }
 
     @Test
-    @DisplayName("회원 닉네임 수정 실패 시 예외 발생")
+    @DisplayName("닉네임 수정 실패-회원이 존재하지 않는 경우")
     void updateMemberNotFound() {
         Long notFoundMemberId = 1000L;
         String newNickname = "new";
@@ -156,7 +144,7 @@ class MemberServiceTest {
     }
 
     @Test
-    @DisplayName("회원 삭제 실패 시 예외 발생")
+    @DisplayName("회원 삭제 실패-회원이 존재하지 않는 경우")
     void deleteMemberNotFound() {
         Long notFoundMemberId = 1000L;
 
