@@ -60,6 +60,7 @@ class MemberServiceTest {
         when(memberRepository.existsByEmail(member.getEmail())).thenReturn(true);
 
         assertThrows(IllegalStateException.class, () -> memberService.saveMember(request));
+
         verify(memberRepository, times(0)).save(member);
     }
 
@@ -76,6 +77,7 @@ class MemberServiceTest {
         assertNotNull(memberDtos);
         assertEquals(1, memberDtos.size());
         assertEquals(member.getName(), memberDtos.get(0).getName());
+
         verify(memberRepository, times(1)).findAll();
     }
     
@@ -89,6 +91,7 @@ class MemberServiceTest {
 
         assertNotNull(memberDto);
         assertEquals(member.getName(), memberDto.getName());
+
         verify(memberRepository, times(1)).findById(member.getId());
     }
 
@@ -98,8 +101,7 @@ class MemberServiceTest {
         Long notFoundMemberId = 1000L;
         when(memberRepository.findById(notFoundMemberId)).thenReturn(Optional.empty());
 
-        assertThrows(MemberNotFoundException.class
-                , () -> memberService.findOneMember(notFoundMemberId));
+        assertThrows(MemberNotFoundException.class, () -> memberService.findOneMember(notFoundMemberId));
     }
 
     @Test
@@ -125,6 +127,7 @@ class MemberServiceTest {
         String newNickname = "new";
 
         when(memberRepository.findById(notFoundMemberId)).thenReturn(Optional.empty());
+
         assertThrows(MemberNotFoundException.class, () -> memberService.updateNickname(notFoundMemberId, newNickname));
 
         verify(memberRepository, times(1)).findById(notFoundMemberId);
