@@ -4,7 +4,9 @@ import jpa.board.domain.Member;
 import jpa.board.domain.Post;
 import jpa.board.domain.RoleType;
 import jpa.board.dto.PostDto;
+import jpa.board.exception.PostNotFoundException;
 import jpa.board.repository.PostRepository;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,8 +14,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -29,6 +32,7 @@ class PostServiceTest {
     private PostService postService;
 
     @Test
+    @DisplayName("게시글 작성 성공")
     void savePost() {
         Member mockMember = createMember();
         when(memberService.findAuthenticatedMember()).thenReturn(mockMember);
@@ -50,19 +54,103 @@ class PostServiceTest {
     }
 
     @Test
+    @DisplayName("모든 게시글 조회-게시글이 존재하는 경우")
     void findAllPost() {
+        Member mockMember = createMember();
+        Post post1 = createPost(1L, mockMember);
+        Post post2 = createPost(2L, mockMember);
+        when(postRepository.findAll()).thenReturn(List.of(post1, post2));
+
+        List<PostDto.Response> postList = postService.findAllPost();
+
+        assertEquals(2, postList.size());
+        assertEquals(1L, postList.get(0).getPostId());
+        assertEquals(2L, postList.get(1).getPostId());
+
+        verify(postRepository, times(1)).findAll();
     }
 
     @Test
+    @DisplayName("특정 게시물 조회-게시글이 존재하는 경우")
     void findOnePost() {
+        Member mockMember = createMember();
+        Post post = createPost(1L, mockMember);
+        when(postRepository.findById(1L)).thenReturn(Optional.of(post));
+
+        PostDto.Response response = postService.findOnePost(1L);
+
+        assertNull(response);
+        assertEquals(post.getId(), response.getPostId());
+        assertEquals("제목", response.getTitle());
+        assertEquals("내용", response.getContent());
+
+        verify(postRepository, times(1)).findById(1L);
     }
 
     @Test
+    @DisplayName("특정 게시물 조회-게시글이 존재 하지 않는 경우")
+    void findOnePostNotFoundException() {
+        Long notExistPostId = 1L;
+        when(postRepository.findById(notExistPostId)).thenReturn(Optional.empty());
+
+        assertThrows(PostNotFoundException.class, () -> postService.findOnePost(notExistPostId));
+    }
+
+    @Test
+    @DisplayName("특정 게시물 수정 성공")
     void updateOnePost() {
+        Member mockMember = createMember();
+        when(memberService.findAuthenticatedMember()).thenReturn(mockMember);
+
+        PostDto.Request request = new PostDto.Request(1L, "제목", "내용");
+        Post savedPost = createPost(1L, mockMember);
+
+        when(postRepository.save(any(Post.class))).thenReturn(savedPost);
+
+        PostDto.Response response = postService.savePost(request);
+
+        PostDto.Request updateRequest = new PostDto.Request(savedPost.getId(), "수정된 제목", "수정된 내용");
+        when(postRepository.findById(1L)).thenReturn(Optional.of(savedPost));
+        postService.updateOnePost(savedPost.getId(), updateRequest);
+
+        assertEquals(savedPost.getTitle(), updateRequest.getTitle());
+        assertEquals(response.getTitle(), savedPost.getTitle());
+        assertEquals(response.getContent(), savedPost.getContent());
+
+        verify(postRepository, times(1)).findById(1L);
     }
 
     @Test
+    @DisplayName("특정 게시물 수정 실패-게시글이 존재 하지 않는 경우")
+    void updateOnePostNotFoundException() {
+        Long notExistPostId = 1L;
+        when(postRepository.findById(notExistPostId)).thenThrow(PostNotFoundException.class);
+
+        PostDto.Request updateRequest = new PostDto.Request(notExistPostId, "수정된 제목", "수정된 내용");
+
+        assertThrows(PostNotFoundException.class, () -> postService.updateOnePost(notExistPostId, updateRequest));
+    }
+
+    @Test
+    @DisplayName("특정 게시물 삭제 성공")
     void deletePostById() {
+        Long postId = 1L;
+        when(postRepository.existsById(postId)).thenReturn(true);
+
+        postService.deletePostById(postId);
+
+        verify(postRepository, times(1)).deleteById(postId);
+    }
+
+    @Test
+    @DisplayName("특정 게시물 삭제 실패")
+    void deletePostNotFoundException() {
+        Long postId = 1L;
+        when(postRepository.existsById(postId)).thenReturn(false);
+
+        assertThrows(PostNotFoundException.class, () -> postService.deletePostById(postId));
+
+        verify(postRepository, never()).deleteById(anyLong());
     }
 
     private Post createPost(Long id, Member member) {
