@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +28,7 @@ public class ErrorResponse {
     public static ErrorResponse of(ErrorCode errorCode, BindingResult bindingResult) {
         List<FieldErrorDetail> fieldErrors = bindingResult.getFieldErrors().stream()
                 .map(FieldErrorDetail::of)
-                .collect(Collectors.toList());
+                .toList();
         return new ErrorResponse(errorCode, fieldErrors);
     }
 }
