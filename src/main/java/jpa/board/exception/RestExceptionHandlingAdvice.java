@@ -29,21 +29,18 @@ public class RestExceptionHandlingAdvice {
     @ExceptionHandler(PostNotFoundException.class)
     public ResponseEntity<ErrorResponse> handlePostNotFoundException(PostNotFoundException exception) {
         log.error("handlePostNotFoundException", exception);
-        String message = "Post ID : " + exception.getPostId() + " Not Found";
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.of(ErrorCode.POST_NOT_FOUND));
     }
 
     @ExceptionHandler(CommentNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCommentNotFoundException(CommentNotFoundException exception) {
         log.error("handleCommentNotFoundException", exception);
-        String message = "Comment ID : " + exception.getCommentId() + " Not Found";
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.of(ErrorCode.COMMENT_NOT_FOUND));
     }
 
     @ExceptionHandler(MemberNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleMemberNotFoundException(MemberNotFoundException exception) {
         log.error("handleMemberNotFoundException", exception);
-        String message = "Member Name : " + exception.getMemberName() + " Not Found";
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.of(ErrorCode.MEMBER_INVALID));
     }
 }

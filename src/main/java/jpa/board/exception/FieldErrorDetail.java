@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.validation.FieldError;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
@@ -16,7 +16,7 @@ public class FieldErrorDetail {
 
     public static FieldErrorDetail of(FieldError fieldError) {
         return new FieldErrorDetail(fieldError.getField(),
-                fieldError.getRejectedValue() != null ? fieldError.getRejectedValue().toString() : Arrays.toString(new String[0]),
+                fieldError.getRejectedValue() != null ? fieldError.getRejectedValue().toString() : Collections.emptyList().toString(),
                 fieldError.getDefaultMessage());
     }
 }
