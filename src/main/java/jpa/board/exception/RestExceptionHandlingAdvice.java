@@ -17,33 +17,30 @@ public class RestExceptionHandlingAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
         log.error("handleMethodArgumentNotValidException", exception);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.of("invalid field request.", "INVALID FIELD", exception.getBindingResult()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse.of(ErrorCode.MEMBER_INVALID, exception.getBindingResult()));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException exception) {
         log.error("handleBadCredentialsException", exception);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorResponse.of("Invalid email or password", "AUTHENTICATION_FAILED"));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorResponse.of(ErrorCode.MEMBER_AUTHENTICATION));
     }
 
     @ExceptionHandler(PostNotFoundException.class)
     public ResponseEntity<ErrorResponse> handlePostNotFoundException(PostNotFoundException exception) {
         log.error("handlePostNotFoundException", exception);
-        String message = "Post ID : " + exception.getPostId() + " Not Found";
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.of(message, "POST_NOT_FOUND"));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.of(ErrorCode.POST_NOT_FOUND));
     }
 
     @ExceptionHandler(CommentNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCommentNotFoundException(CommentNotFoundException exception) {
         log.error("handleCommentNotFoundException", exception);
-        String message = "Comment ID : " + exception.getCommentId() + " Not Found";
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.of(message, "COMMENT_NOT_FOUND"));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.of(ErrorCode.COMMENT_NOT_FOUND));
     }
 
     @ExceptionHandler(MemberNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleMemberNotFoundException(MemberNotFoundException exception) {
         log.error("handleMemberNotFoundException", exception);
-        String message = "Member Name : " + exception.getMemberName() + " Not Found";
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.of(message, "MEMBER_NOT_FOUND"));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.of(ErrorCode.MEMBER_INVALID));
     }
 }

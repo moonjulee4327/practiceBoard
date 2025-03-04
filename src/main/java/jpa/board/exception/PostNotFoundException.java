@@ -1,14 +1,13 @@
 package jpa.board.exception;
 
+import lombok.Getter;
+
+@Getter
 public class PostNotFoundException extends RuntimeException{
     private final Long postId;
 
     public PostNotFoundException(String message, Long postId) {
         super(message);
         this.postId = postId;
-    }
-
-    public Long getPostId() {
-        return postId;
     }
 }
