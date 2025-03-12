@@ -39,6 +39,7 @@ public class SecurityConfig {
             .formLogin(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth
                     -> auth.requestMatchers("/h2-console/**").permitAll()
+                    .requestMatchers("/login/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/members/**").permitAll()
                     .requestMatchers("/posts/**").hasAnyAuthority("USER", "ADMIN")
                     .requestMatchers(HttpMethod.GET, "/members/").hasAuthority("ADMIN")
