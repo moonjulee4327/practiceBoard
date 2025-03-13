@@ -48,7 +48,7 @@ dependencies {
 	// oauth2
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
-	// WebClient
+	// webflux
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
 
