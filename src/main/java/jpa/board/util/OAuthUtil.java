@@ -17,16 +17,15 @@ public class OAuthUtil {
     private String redirectUri;
     @Value("${spring.security.oauth2.client.provider.kakao.token-uri}")
     private String tokenUri;
+    @Value("${spring.security.oauth2.client.provider.kakao.user-info-uri}")
+    private String userInfoUri;
     @Value("${spring.security.oauth2.client.registration.kakao.authorization-grant-type}")
     private String grantType;
     @Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
     private String clientSecret;
 
     public OAuthDto.KakaoTokenResponse requestToken(String code) {
-        WebClient webClient = WebClient.builder()
-                .baseUrl(tokenUri)
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded;charset=utf-8")
-                .build();
+        WebClient webClient = WebClient.create();
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", grantType);
@@ -41,6 +40,20 @@ public class OAuthUtil {
                 .body(BodyInserters.fromFormData(params))
                 .retrieve()
                 .bodyToMono(OAuthDto.KakaoTokenResponse.class)
+                .block();
+    }
+
+    public String requestProfile(OAuthDto.KakaoTokenResponse token) {
+        WebClient webClient = WebClient.create();
+
+        return webClient.get()
+                .uri(userInfoUri)
+                .headers(headers -> {
+                    headers.add(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded;charset=utf-8");
+                    headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + token.getAccess_token());
+                })
+                .retrieve()
+                .bodyToMono(String.class)
                 .block();
     }
 }

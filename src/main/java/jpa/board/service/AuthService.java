@@ -11,6 +11,9 @@ public class AuthService {
     private final OAuthUtil oAuthUtil;
 
     public OAuthDto.KakaoTokenResponse oAuthLogin(String code) {
-        return oAuthUtil.requestToken(code);
+        OAuthDto.KakaoTokenResponse token = oAuthUtil.requestToken(code);
+        String profile = oAuthUtil.requestProfile(token);
+
+        return token;
     }
 }

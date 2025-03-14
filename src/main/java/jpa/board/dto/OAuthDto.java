@@ -13,4 +13,11 @@ public class OAuthDto {
         private String scope;
         private int refresh_token_expires_in;
     }
+
+    @Data
+    public static class KakaoProfileResponse {
+        private String nickname;
+        private String email;
+        private String image;
+    }
 }
