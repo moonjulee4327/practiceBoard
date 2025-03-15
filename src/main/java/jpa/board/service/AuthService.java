@@ -10,10 +10,8 @@ import org.springframework.stereotype.Service;
 public class AuthService {
     private final OAuthUtil oAuthUtil;
 
-    public OAuthDto.KakaoTokenResponse oAuthLogin(String code) {
+    public OAuthDto.KakaoProfileResponse oAuthLogin(String code) {
         OAuthDto.KakaoTokenResponse token = oAuthUtil.requestToken(code);
-        String profile = oAuthUtil.requestProfile(token);
-
-        return token;
+        return oAuthUtil.requestProfile(token);
     }
 }

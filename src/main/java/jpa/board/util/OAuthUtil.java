@@ -43,7 +43,7 @@ public class OAuthUtil {
                 .block();
     }
 
-    public String requestProfile(OAuthDto.KakaoTokenResponse token) {
+    public OAuthDto.KakaoProfileResponse requestProfile(OAuthDto.KakaoTokenResponse token) {
         WebClient webClient = WebClient.create();
 
         return webClient.get()
@@ -53,7 +53,7 @@ public class OAuthUtil {
                     headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + token.getAccess_token());
                 })
                 .retrieve()
-                .bodyToMono(String.class)
+                .bodyToMono(OAuthDto.KakaoProfileResponse.class)
                 .block();
     }
 }
