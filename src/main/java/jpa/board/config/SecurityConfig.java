@@ -38,7 +38,7 @@ public class SecurityConfig {
                     -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .formLogin(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth
-                    -> auth.requestMatchers("/h2-console/**").permitAll()
+                    -> auth.requestMatchers("/h2-console/**", "/auth/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/members/**").permitAll()
                     .requestMatchers("/posts/**").hasAnyAuthority("USER", "ADMIN")
                     .requestMatchers(HttpMethod.GET, "/members/").hasAuthority("ADMIN")
