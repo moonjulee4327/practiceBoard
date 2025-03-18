@@ -28,10 +28,6 @@ public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
 
-    private final JwtTokenProvider jwtTokenProvider;
-
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
-
     private final SecurityContextService securityContextService;
 
     public MemberDto.Response saveMember(MemberDto.Request request) {
@@ -78,35 +74,6 @@ public class MemberService {
             throw new MemberNotFoundException("No Exist Member", memberId + "");
         }
         memberRepository.deleteById(memberId);
-    }
-
-    public JwtTokenResponse signIn(SignInDto signInDto) {
-        UsernamePasswordAuthenticationToken authenticationToken
-                = new UsernamePasswordAuthenticationToken(signInDto.getEmail(), signInDto.getPassword());
-
-        Authentication authenticate
-                = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-
-        return jwtTokenProvider.generateToken(authenticate);
-    }
-
-    public JwtTokenResponse reissue(JwtTokenRequest jwtTokenRequest) {
-        String memberEmail = jwtTokenProvider.getMemberEmail(jwtTokenRequest.getRefreshToken());
-
-        if (!jwtTokenProvider.validateRefreshToken(memberEmail, jwtTokenRequest.getRefreshToken())) {
-            jwtTokenProvider.invalidRefreshToken(memberEmail);
-            throw new JwtException("Invalid Refresh token");
-        }
-
-        List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(RoleType.USER.name()));
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(memberEmail, null, authorities);
-        return jwtTokenProvider.generateToken(authentication);
-    }
-
-    public void logout(JwtTokenRequest jwtTokenRequest) {
-        String memberEmail = jwtTokenProvider.getMemberEmail(jwtTokenRequest.getRefreshToken());
-        jwtTokenProvider.invalidRefreshToken(memberEmail);
     }
 
     public Member findAuthenticatedMember() {
