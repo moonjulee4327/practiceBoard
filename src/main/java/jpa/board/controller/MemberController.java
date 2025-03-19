@@ -42,22 +42,4 @@ public class MemberController {
         memberService.deleteMember(memberId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
-    @PostMapping("/login")
-    public ResponseEntity<JwtTokenResponse> signIn(@RequestBody SignInDto signInDto) {
-        JwtTokenResponse jwtTokenResponse = memberService.signIn(signInDto);
-        return ResponseEntity.ok(jwtTokenResponse);
-    }
-
-    @PostMapping("/reissue")
-    public ResponseEntity<JwtTokenResponse> reissue(@RequestBody JwtTokenRequest jwtTokenRequest) {
-        JwtTokenResponse jwtTokenResponse = memberService.reissue(jwtTokenRequest);
-        return ResponseEntity.ok(jwtTokenResponse);
-    }
-
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody JwtTokenRequest jwtTokenRequest) {
-        memberService.logout(jwtTokenRequest);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
 }
